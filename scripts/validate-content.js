@@ -1,0 +1,103 @@
+#!/usr/bin/env node
+// Content validator for data/questions.json + data/levels.json.
+// No dependencies. Run with: node scripts/validate-content.js
+//
+// Exit code 0 = no hard errors (warnings may still be printed).
+// Exit code 1 = at least one hard error.
+
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
+
+const MEANING_SOFT_LIMIT = 120;
+const MIN_WORD_LENGTH = 2;
+const DIFFICULTIES = ['easy', 'medium', 'difficult'];
+
+function loadJson(relativePath) {
+  const raw = readFileSync(join(ROOT, relativePath), 'utf8');
+  return JSON.parse(raw);
+}
+
+function main() {
+  const errors = [];
+  const warnings = [];
+
+  const { entries } = loadJson('data/questions.json');
+  const levels = loadJson('data/levels.json');
+
+  const maxGridSizeEver = Math.max(...levels.map((l) => l.gridSizeMax));
+  const minGridSizeEver = Math.min(...levels.map((l) => l.gridSizeMin));
+
+  const seenWordDifficulty = new Set();
+
+  for (const entry of entries) {
+    const { word, meaning, difficulty } = entry;
+    const label = `"${word}" (${difficulty})`;
+
+    if (!word || typeof word !== 'string') {
+      errors.push(`Entry missing a valid "word": ${JSON.stringify(entry)}`);
+      continue;
+    }
+    if (!DIFFICULTIES.includes(difficulty)) {
+      errors.push(`${label}: difficulty must be one of ${DIFFICULTIES.join(', ')}`);
+    }
+
+    const key = `${word.toUpperCase()}::${difficulty}`;
+    if (seenWordDifficulty.has(key)) {
+      errors.push(`Duplicate word+difficulty combination: ${label}`);
+    }
+    seenWordDifficulty.add(key);
+
+    if (word.length < MIN_WORD_LENGTH) {
+      errors.push(`${label}: word must be at least ${MIN_WORD_LENGTH} characters`);
+    }
+
+    if (word.length > maxGridSizeEver) {
+      errors.push(
+        `${label}: word length ${word.length} exceeds the largest grid any level can ever roll (${maxGridSizeEver}) — it can never fit.`
+      );
+    }
+
+    if (meaning && meaning.length > MEANING_SOFT_LIMIT) {
+      warnings.push(
+        `${label}: meaning is ${meaning.length} chars, above the soft limit of ${MEANING_SOFT_LIMIT}`
+      );
+    }
+  }
+
+  // Starved-tier check: for each level's smallest rollable grid size (the
+  // tightest constraint, since eligibility only grows as grid size grows),
+  // warn if a difficulty has fewer than 2 eligible words.
+  for (const level of levels) {
+    for (const difficulty of DIFFICULTIES) {
+      const eligible = entries.filter(
+        (e) => e.difficulty === difficulty && e.word.length <= level.gridSizeMin
+      );
+      if (eligible.length < 2) {
+        warnings.push(
+          `Level ${level.levelNumber}: only ${eligible.length} "${difficulty}" word(s) fit at the minimum grid size (${level.gridSizeMin}x${level.gridSizeMin}) — this tier may feel starved early on.`
+        );
+      }
+    }
+  }
+
+  console.log(`Checked ${entries.length} entries across levels with grid sizes ${minGridSizeEver}-${maxGridSizeEver}.`);
+
+  if (warnings.length) {
+    console.log(`\n${warnings.length} warning(s):`);
+    for (const w of warnings) console.log(`  ! ${w}`);
+  }
+
+  if (errors.length) {
+    console.log(`\n${errors.length} error(s):`);
+    for (const e of errors) console.log(`  x ${e}`);
+    process.exit(1);
+  }
+
+  console.log('\nNo errors.');
+}
+
+main();

@@ -1,0 +1,8 @@
+[
+  {
+    "levelNumber": 1,
+    "gridSizeMin": 9,
+    "gridSizeMax": 15,
+    "fillerMode": "curated"
+  }
+]
