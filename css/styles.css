@@ -187,6 +187,74 @@ nav.app-nav button.active, nav.app-nav a.active {
   opacity: 0.8;
 }
 
+/* ---------- True/False mode ---------- */
+.truefalse-term { color: var(--muted); font-size: 0.85rem; margin-bottom: 2px; }
+.truefalse-card .controls { margin-top: 10px; }
+
+/* ---------- Card Grouping mode ---------- */
+.grouping-buckets {
+  position: relative; /* required: gem-burst anchors here, unclipped */
+  display: flex;
+  gap: 12px;
+  margin: 14px 0;
+  flex-wrap: wrap;
+}
+.bucket {
+  flex: 1 1 200px;
+  min-width: 180px;
+  background: var(--panel-2);
+  border-radius: var(--radius);
+  padding: 12px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+.bucket:hover { box-shadow: 0 0 0 1px var(--accent) inset; }
+.bucket-title {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.bucket-slot {
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.placed-chip {
+  background: var(--found-self);
+  color: #dcfce7;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.bucket-wrong { animation: bucket-shake 0.4s ease; box-shadow: 0 0 0 1px var(--danger) inset; }
+@keyframes bucket-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.card-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.card-tray .card {
+  background: var(--panel-2);
+  border: 1px solid var(--panel-2);
+  color: var(--ink);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+}
+.card-tray .card.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #1e3a4a;
+}
+
 /* ---------- Word list / hints ---------- */
 .hint-list { list-style: none; padding: 0; margin: 16px 0 0; }
 .hint-list li {
