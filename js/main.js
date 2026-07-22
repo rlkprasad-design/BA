@@ -1,4 +1,5 @@
 import { getCurrentPlayer, hasHistory, setActivePlayer, clearActivePlayer } from './identity.js';
+import { getTotalMarks, addTotalMarks } from './puzzle-engine.js';
 import { renderWordSearch } from './wordsearch-ui.js';
 import { renderSpelling } from './spelling-ui.js';
 import { renderScoreboard } from './scoreboard.js';
@@ -64,6 +65,7 @@ function renderShell(playerName, questionsData, levelsData) {
         </div>
         <div>
           <span style="color: var(--muted); margin-right: 12px;">Playing as <strong>${playerName}</strong></span>
+          <span style="margin-right: 12px;">Marks: <strong id="local-marks-value">${getTotalMarks(playerName)}</strong></span>
           <nav class="app-nav">
             <button data-view="wordsearch" class="active">Word Search</button>
             <button data-view="spelling">Spelling</button>
@@ -77,6 +79,11 @@ function renderShell(playerName, questionsData, levelsData) {
 
   const contentEl = document.getElementById('view-content');
   const navButtons = [...document.querySelectorAll('[data-view]')];
+  const marksValueEl = document.getElementById('local-marks-value');
+
+  function onMarksEarned(delta) {
+    marksValueEl.textContent = addTotalMarks(playerName, delta);
+  }
 
   function setActiveNav(view) {
     navButtons.forEach((b) => b.classList.toggle('active', b.dataset.view === view));
@@ -90,12 +97,14 @@ function renderShell(playerName, questionsData, levelsData) {
         level,
         playerName,
         onExhausted: () => showView('spelling'),
+        onMarksEarned,
       });
     } else if (view === 'spelling') {
       renderSpelling(contentEl, {
         questionsData,
         playerName,
         onExhausted: () => showView('wordsearch'),
+        onMarksEarned,
       });
     } else if (view === 'scoreboard') {
       renderScoreboard(contentEl);
