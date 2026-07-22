@@ -90,7 +90,7 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
         const marks = marksForFind(entry.difficulty, 'spelling');
         onMarksEarned(marks); // immediate, local, independent of Supabase
         checkCompletion(); // don't gate user-facing completion on a network round-trip
-        recordFind(playerName, entry.difficulty, marks);
+        recordFind(playerName, entry.difficulty, marks, 'spelling');
       } else {
         feedback.textContent = 'Not quite - try again.';
       }

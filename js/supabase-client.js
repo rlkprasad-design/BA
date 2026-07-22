@@ -24,6 +24,12 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
 const TIER_COLUMN = { easy: 'bronze_count', medium: 'silver_count', difficult: 'gold_count' };
+const MODE_COLUMN = {
+  wordsearch: 'wordsearch_marks',
+  spelling: 'spelling_marks',
+  truefalse: 'truefalse_marks',
+  grouping: 'grouping_marks',
+};
 
 let clientPromise = null;
 
@@ -40,7 +46,7 @@ function getClient() {
   return clientPromise;
 }
 
-export async function recordFind(playerName, difficulty, marksDelta) {
+export async function recordFind(playerName, difficulty, marksDelta, mode) {
   try {
     const supabase = await getClient();
     if (!supabase) return { localOnly: true };
@@ -58,11 +64,18 @@ export async function recordFind(playerName, difficulty, marksDelta) {
       silver_count: 0,
       gold_count: 0,
       total_marks: 0,
+      wordsearch_marks: 0,
+      spelling_marks: 0,
+      truefalse_marks: 0,
+      grouping_marks: 0,
     };
 
     const column = TIER_COLUMN[difficulty];
     row[column] = (row[column] || 0) + 1;
     row.total_marks = (row.total_marks || 0) + marksDelta;
+
+    const modeColumn = MODE_COLUMN[mode];
+    row[modeColumn] = (row[modeColumn] || 0) + marksDelta;
 
     const { error } = await supabase.from('ba_scores').upsert(row, { onConflict: 'player_name' });
     if (error) console.error('recordFind upsert failed:', error.message);
@@ -79,7 +92,9 @@ export async function fetchTopScores(limit = 50) {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('ba_scores')
-      .select('player_name, bronze_count, silver_count, gold_count, total_marks')
+      .select(
+        'player_name, bronze_count, silver_count, gold_count, total_marks, wordsearch_marks, spelling_marks, truefalse_marks, grouping_marks'
+      )
       .order('total_marks', { ascending: false })
       .limit(limit);
     if (error) {

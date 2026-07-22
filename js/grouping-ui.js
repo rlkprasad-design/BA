@@ -89,7 +89,7 @@ export function renderGrouping(container, { questionsData, playerName, onExhaust
       onMarksEarned(marks); // immediate, local, independent of Supabase
       selectedWord = null;
       checkCompletion(); // don't gate user-facing completion on a network round-trip
-      recordFind(playerName, meta.difficulty, marks);
+      recordFind(playerName, meta.difficulty, marks, 'grouping');
     } else {
       bucketEl.classList.add('bucket-wrong');
       window.setTimeout(() => bucketEl.classList.remove('bucket-wrong'), 400);

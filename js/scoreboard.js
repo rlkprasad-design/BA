@@ -21,18 +21,27 @@ export async function renderScoreboard(container) {
           <td>${TIER_TOKENS.easy.icon} ${row.bronze_count}</td>
           <td>${TIER_TOKENS.medium.icon} ${row.silver_count}</td>
           <td>${TIER_TOKENS.difficult.icon} ${row.gold_count}</td>
+          <td>${row.wordsearch_marks || 0}</td>
+          <td>${row.spelling_marks || 0}</td>
+          <td>${row.truefalse_marks || 0}</td>
+          <td>${row.grouping_marks || 0}</td>
           <td><strong>${row.total_marks}</strong></td>
         </tr>`
       )
       .join('');
 
     tableWrapper.innerHTML = `
+      <div class="table-scroll">
       <table class="scoreboard">
         <thead>
-          <tr><th>#</th><th>Player</th><th>Bronze</th><th>Silver</th><th>Gold</th><th>Marks</th></tr>
+          <tr>
+            <th>#</th><th>Player</th><th>Bronze</th><th>Silver</th><th>Gold</th>
+            <th>Word Search</th><th>Spelling</th><th>True/False</th><th>Grouping</th><th>Marks</th>
+          </tr>
         </thead>
-        <tbody>${rows || '<tr><td colspan="6">No scores yet - be the first!</td></tr>'}</tbody>
+        <tbody>${rows || '<tr><td colspan="10">No scores yet - be the first!</td></tr>'}</tbody>
       </table>
+      </div>
       ${
         scores.length > DEFAULT_VISIBLE
           ? `<button class="secondary" id="toggle-visible">${visibleCount >= scores.length ? 'Show less' : 'Show more'}</button>`
@@ -44,6 +53,7 @@ export async function renderScoreboard(container) {
         <span><span class="token">${TIER_TOKENS.difficult.icon} Gold</span> = ${TIER_TOKENS.difficult.marks} marks (Evaluate/Create)</span>
         <span>Word Search and Grouping are worth double these marks per find; Spelling and True/False award the base value.</span>
         <span>"Show answer" earns no token or marks.</span>
+        <span>The Word Search/Spelling/True-False/Grouping columns show marks earned in that mode specifically.</span>
       </div>
     `;
 

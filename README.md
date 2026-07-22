@@ -24,8 +24,13 @@ its tables are prefixed `ba_` (`ba_scores`, `ba_flagged_terms`) so nothing
 collides with the other app's tables in the same project.
 
 1. Open your Supabase project's SQL Editor.
-2. Run `supabase/schema.sql` once to create the tables, enable RLS, and add
-   the (intentionally open, no-login) policies.
+2. Run `supabase/schema.sql` to create the tables, enable RLS, and add the
+   (intentionally open, no-login) policies. The whole file is safe to
+   re-run any time content or the schema changes - `create table if not
+   exists` and `alter table ... add column if not exists` are both
+   idempotent, so re-running it against an already-live project only adds
+   what's missing (e.g. the four per-mode marks columns added for the
+   scoreboard breakdown below) without touching existing data.
 3. `js/config.js` already has this project's `SUPABASE_URL` and anon
    (publishable) key filled in.
 
@@ -147,6 +152,15 @@ for tokens/marks) rather than treating them as fixed.
   other network-level problem can make the underlying fetch *reject*
   rather than resolve with an error, and local UI feedback should never be
   at the mercy of that.
+- **Per-mode scoreboard breakdown**: `ba_scores` carries a `..._marks`
+  column per game mode (`wordsearch_marks`, `spelling_marks`,
+  `truefalse_marks`, `grouping_marks`) alongside the existing
+  `total_marks`. `recordFind(playerName, difficulty, marksDelta, mode)`
+  takes the mode as its 4th argument and increments both the tier count
+  (bronze/silver/gold) and the matching mode column in the same upsert -
+  see `MODE_COLUMN` in `js/supabase-client.js`. The scoreboard table shows
+  one column per mode so a teacher can see, per student, how much of their
+  total came from each exercise type, not just the grand total.
 
 ### True/False mode
 
