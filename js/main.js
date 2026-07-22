@@ -1,4 +1,5 @@
 import { getCurrentPlayer, hasHistory, setActivePlayer, clearActivePlayer } from './identity.js';
+import { getTotalMarks, addTotalMarks } from './puzzle-engine.js';
 import { renderWordSearch } from './wordsearch-ui.js';
 import { renderSpelling } from './spelling-ui.js';
 import { renderScoreboard } from './scoreboard.js';
@@ -13,6 +14,7 @@ async function loadJson(path) {
 function renderNameGate(onReady) {
   appEl.innerHTML = `
     <div class="name-gate">
+      <img class="app-logo app-logo--large" src="assets/logo.svg" alt="" />
       <h1>BA Quest</h1>
       <p>Enter a display name to play. No account needed.</p>
       <input id="name-input" type="text" maxlength="40" placeholder="Your name" />
@@ -57,9 +59,13 @@ function renderShell(playerName, questionsData, levelsData) {
   appEl.innerHTML = `
     <div class="app">
       <header class="app-header">
-        <h1>BA Quest</h1>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img class="app-logo" src="assets/logo.svg" alt="" />
+          <h1>BA Quest</h1>
+        </div>
         <div>
           <span style="color: var(--muted); margin-right: 12px;">Playing as <strong>${playerName}</strong></span>
+          <span style="margin-right: 12px;">Marks: <strong id="local-marks-value">${getTotalMarks(playerName)}</strong></span>
           <nav class="app-nav">
             <button data-view="wordsearch" class="active">Word Search</button>
             <button data-view="spelling">Spelling</button>
@@ -73,6 +79,11 @@ function renderShell(playerName, questionsData, levelsData) {
 
   const contentEl = document.getElementById('view-content');
   const navButtons = [...document.querySelectorAll('[data-view]')];
+  const marksValueEl = document.getElementById('local-marks-value');
+
+  function onMarksEarned(delta) {
+    marksValueEl.textContent = addTotalMarks(playerName, delta);
+  }
 
   function setActiveNav(view) {
     navButtons.forEach((b) => b.classList.toggle('active', b.dataset.view === view));
@@ -86,12 +97,14 @@ function renderShell(playerName, questionsData, levelsData) {
         level,
         playerName,
         onExhausted: () => showView('spelling'),
+        onMarksEarned,
       });
     } else if (view === 'spelling') {
       renderSpelling(contentEl, {
         questionsData,
         playerName,
         onExhausted: () => showView('wordsearch'),
+        onMarksEarned,
       });
     } else if (view === 'scoreboard') {
       renderScoreboard(contentEl);

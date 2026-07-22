@@ -39,13 +39,23 @@ app - see the comment at the top of `js/supabase-client.js`.
 - `data/questions.json` - the term bank: `{ word, meaning, scenario, difficulty, source }`.
   - `difficulty` is one of `easy | medium | difficult`, mixed together in
     every puzzle.
-  - `scenario` is an optional short situational description (e.g. "a vendor
-    offers a gift to speed up a PO - what value applies?" style, adapted
-    here to BA scenarios) - included from day one, unused by v1's UI, so a
-    later "apply this concept" exercise type is just new content, not a
-    schema migration.
+  - `scenario` is a short situational description grounded in the actual
+    course material (see below) - written as "given this situation, what
+    term applies" rather than a plain definition, so the recall itself is
+    application-oriented, not just rote.
   - `source` is a free-text category tag for the curator's own
-    organization (e.g. "Descriptive Statistics") - never shown to players.
+    organization (e.g. "Unit 1: Types of Analytics") - never shown to
+    players.
+- The 40-entry term bank is grounded in the course's own slides: **Unit I -
+  Introduction to Business Analytics** (the science of data-driven
+  decisions, the descriptive/predictive/prescriptive spectrum, the four Vs
+  of big data, machine learning families, web & social analytics) and
+  **Unit II - Data Collection** (collection methods, data formats and
+  dimensions, the four measurement scales, problem formulation, research
+  types, and common collection challenges). Meanings and scenarios reuse
+  the units' own examples where they fit naturally - Abraham Wald's
+  survivorship-bias story, the Netflix/Uber data-as-asset narratives, and
+  the "sales are down, why?" research-type walkthrough.
 - `data/levels.json` - grid size range and filler mode. Currently one level;
   the concept exists for future expansion.
 - `scripts/validate-content.js` - run with `node scripts/validate-content.js`
@@ -57,12 +67,19 @@ app - see the comment at the top of `js/supabase-client.js`.
 ### Decisions made explicit (per the build brief)
 
 - **Tracing/handwriting mode**: not included. Skipped by request.
-- **Max grid size**: 15x15 (laptop-bound, chosen to comfortably fit longer
-  single-word BA terms like STANDARDIZATION/AUTOCORRELATION).
+- **Max grid size**: 13x13 - originally 15x15, lowered after real play (on
+  the sibling DBMS Quest app, same engine) found the largest grids
+  uncomfortably big on a laptop screen. The longest word in this bank
+  (13 chars: `COVERAGEERROR`) exactly matches the cap.
 - **Reward tiers**: Bronze / Silver / Gold for easy / medium / difficult,
-  worth 1 / 3 / 6 marks respectively - mapped to grouped Bloom's Taxonomy
-  levels (easy = Remember+Understand, medium = Apply+Analyze, difficult =
+  worth 1 / 3 / 6 base marks - mapped to grouped Bloom's Taxonomy levels
+  (easy = Remember+Understand, medium = Apply+Analyze, difficult =
   Evaluate+Create).
+- **Mode multiplier**: Word Search ("crossword") awards double a tier's base
+  marks per find; Spelling awards the base value as-is. Finding a word
+  hidden among filler letters is a harder recall task than assembling it
+  from an already-isolated letter tray, so it's worth more - see
+  `MODE_MULTIPLIERS` in `js/gems.js`.
 - **`scenario` field**: added to the schema now, even though v1's UI only
   displays it as an alternate hint text (falls back to `meaning` if empty).
 
@@ -90,9 +107,21 @@ for tokens/marks) rather than treating them as fixed.
 - Difficulty mix ramps from mostly-easy toward a balanced mix over a
   player's first ~30 completed puzzles; grid size independently ramps from
   the level minimum to its full max over the first ~50.
-- A word found by dragging it yourself earns its tier's token + marks. A
+- A word found by dragging it yourself earns its tier's token + marks
+  (doubled for Word Search vs Spelling - see the mode multiplier above). A
   word revealed via "Show answer" completes the puzzle but earns nothing,
   and is shown in a visually distinct color in the grid.
+- A persistent local marks total (`baquest.totalMarks`, `localStorage`) is
+  shown in the header as "Marks: N", updated the instant a word is
+  genuinely found - not gated behind full puzzle completion or any
+  Supabase call. This is independent of the shared Supabase scoreboard, so
+  a player always has visible proof their marks are accumulating even if
+  Supabase is unreachable or misconfigured.
+- Every Supabase call (`js/supabase-client.js`) is wrapped in try/catch, not
+  just an `{ error }` field check - a missing table, CORS failure, or any
+  other network-level problem can make the underlying fetch *reject*
+  rather than resolve with an error, and local UI feedback should never be
+  at the mercy of that.
 
 ## Known gap from this environment
 

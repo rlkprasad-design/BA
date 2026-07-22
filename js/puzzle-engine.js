@@ -30,6 +30,7 @@ export const DIRECTIONS = [
 const PUZZLES_COMPLETED_KEY = 'baquest.puzzlesCompleted';
 const EXPOSURE_COUNTS_KEY = 'baquest.exposureCounts';
 const QUEUE_KEY_PREFIX = 'baquest.drawQueue';
+const TOTAL_MARKS_KEY = 'baquest.totalMarks';
 
 function shuffle(array) {
   const copy = array.slice();
@@ -51,6 +52,20 @@ export function getPuzzlesCompleted(playerName) {
 export function incrementPuzzlesCompleted(playerName) {
   const n = getPuzzlesCompleted(playerName) + 1;
   writePlayerJson(PUZZLES_COMPLETED_KEY, playerName, n);
+  return n;
+}
+
+// Tracked and displayed entirely client-side, independent of whether any
+// Supabase write ever succeeds - so a player always sees proof their marks
+// are accumulating, even fully offline. This is separate from (and adds
+// up the same values as) the shared Supabase scoreboard.
+export function getTotalMarks(playerName) {
+  return readPlayerJson(TOTAL_MARKS_KEY, playerName, 0);
+}
+
+export function addTotalMarks(playerName, delta) {
+  const n = getTotalMarks(playerName) + delta;
+  writePlayerJson(TOTAL_MARKS_KEY, playerName, n);
   return n;
 }
 

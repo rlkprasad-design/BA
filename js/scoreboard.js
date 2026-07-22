@@ -42,6 +42,7 @@ export async function renderScoreboard(container) {
         <span><span class="token">${TIER_TOKENS.easy.icon} Bronze</span> = ${TIER_TOKENS.easy.marks} mark (Remember/Understand)</span>
         <span><span class="token">${TIER_TOKENS.medium.icon} Silver</span> = ${TIER_TOKENS.medium.marks} marks (Apply/Analyze)</span>
         <span><span class="token">${TIER_TOKENS.difficult.icon} Gold</span> = ${TIER_TOKENS.difficult.marks} marks (Evaluate/Create)</span>
+        <span>Word Search is worth double these marks per find; Spelling awards the base value.</span>
         <span>"Show answer" earns no token or marks.</span>
       </div>
     `;

@@ -1,5 +1,5 @@
 import { drawSpellingSet, incrementPuzzlesCompleted } from './puzzle-engine.js';
-import { TIER_TOKENS, celebrateFind } from './gems.js';
+import { TIER_TOKENS, celebrateFind, marksForFind } from './gems.js';
 import { recordFind, flagTerm } from './supabase-client.js';
 
 function shuffledLetters(word) {
@@ -15,8 +15,8 @@ function shuffledLetters(word) {
   return shuffled;
 }
 
-export function renderSpelling(container, { questionsData, playerName, onExhausted }) {
-  const words = drawSpellingSet(playerName, questionsData, 8);
+export function renderSpelling(container, { questionsData, playerName, onExhausted, onMarksEarned }) {
+  const words = drawSpellingSet(playerName, questionsData, 10);
 
   if (!words) {
     container.innerHTML = `
@@ -88,7 +88,7 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
 
     card.querySelector(`[data-clear="${index}"]`).addEventListener('click', reset);
 
-    card.querySelector(`[data-submit="${index}"]`).addEventListener('click', async () => {
+    card.querySelector(`[data-submit="${index}"]`).addEventListener('click', () => {
       if (solved.has(index)) return;
       const feedback = card.querySelector(`[data-feedback="${index}"]`);
       const attempt = built.map((b) => b.letter).join('');
@@ -97,9 +97,11 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
         answerEl.textContent = entry.word;
         feedback.textContent = 'Correct!';
         celebrateFind(card, answerEl, entry.difficulty);
-        await recordFind(playerName, entry.difficulty, token.marks);
         card.querySelectorAll('button').forEach((b) => (b.disabled = true));
-        checkCompletion();
+        const marks = marksForFind(entry.difficulty, 'spelling');
+        onMarksEarned(marks); // immediate, local, independent of Supabase
+        checkCompletion(); // don't gate user-facing completion on a network round-trip
+        recordFind(playerName, entry.difficulty, marks);
       } else {
         feedback.textContent = 'Not quite - try again.';
       }
@@ -136,7 +138,7 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
     if (solved.size < words.length) return;
     incrementPuzzlesCompleted(playerName);
     const marksEarned = words.reduce(
-      (sum, entry, i) => sum + (solved.get(i) === 'self' ? TIER_TOKENS[entry.difficulty].marks : 0),
+      (sum, entry, i) => sum + (solved.get(i) === 'self' ? marksForFind(entry.difficulty, 'spelling') : 0),
       0
     );
     const banner = container.querySelector('#completion-banner');
@@ -144,7 +146,7 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
       <strong>Set complete! +${marksEarned} marks.</strong>
       <button class="primary" id="next-set-btn">Next set</button>`;
     banner.querySelector('#next-set-btn').addEventListener('click', () => {
-      renderSpelling(container, { questionsData, playerName, onExhausted });
+      renderSpelling(container, { questionsData, playerName, onExhausted, onMarksEarned });
     });
   }
 }

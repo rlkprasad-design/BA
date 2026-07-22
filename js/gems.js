@@ -9,6 +9,19 @@ export const TIER_TOKENS = {
   difficult: { name: 'Gold', icon: '🥇', marks: 6 },
 };
 
+// Word search ("crossword") requires finding a hidden word amid filler
+// letters - a harder recall task than picking letters already isolated in
+// a spelling/unscramble tray - so it's worth double a spelling find of the
+// same tier, not just an equal flat mark.
+export const MODE_MULTIPLIERS = {
+  wordsearch: 2,
+  spelling: 1,
+};
+
+export function marksForFind(difficulty, mode) {
+  return TIER_TOKENS[difficulty].marks * MODE_MULTIPLIERS[mode];
+}
+
 const CELEBRATION_DURATION_MS = 1300;
 
 // Appended to the GRID CONTAINER, not the found cell. A cell needs
