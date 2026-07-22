@@ -2,7 +2,7 @@
   {
     "levelNumber": 1,
     "gridSizeMin": 9,
-    "gridSizeMax": 13,
+    "gridSizeMax": 14,
     "fillerMode": "curated"
   }
 ]

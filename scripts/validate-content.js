@@ -56,6 +56,14 @@ function main() {
       errors.push(`${label}: word must be at least ${MIN_WORD_LENGTH} characters`);
     }
 
+    // A single interior space is allowed (e.g. "COVERAGE ERROR") - the grid
+    // places it as a blank cell and the letter jumble keeps it fixed in
+    // place. Leading/trailing/double spaces would just be a malformed
+    // typo, not a real multi-word term.
+    if (/^\s|\s$|\s{2,}/.test(word)) {
+      errors.push(`${label}: word has leading/trailing/double spaces - check for a typo`);
+    }
+
     if (word.length > maxGridSizeEver) {
       errors.push(
         `${label}: word length ${word.length} exceeds the largest grid any level can ever roll (${maxGridSizeEver}) — it can never fit.`

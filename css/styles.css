@@ -144,6 +144,7 @@ nav.app-nav button.active, nav.app-nav a.active {
 .grid-cell.dragging { background: #334155; }
 .grid-cell.found-self { background: var(--found-self); color: #dcfce7; }
 .grid-cell.found-shown { background: var(--found-shown); color: #fef3c7; }
+.grid-cell-blank { color: var(--muted); font-weight: 400; }
 
 .gem-burst {
   position: absolute;
