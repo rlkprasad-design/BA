@@ -1,3 +1,5 @@
+<img src="assets/logo.svg" alt="BA Quest logo" width="96" />
+
 # BA Quest
 
 A calm, laptop-first recall game for Business Analytics terms - word search
