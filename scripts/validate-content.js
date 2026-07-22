@@ -13,6 +13,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
 const MEANING_SOFT_LIMIT = 120;
+const SCENARIO_SOFT_LIMIT = 220;
 const MIN_WORD_LENGTH = 2;
 const DIFFICULTIES = ['easy', 'medium', 'difficult'];
 
@@ -64,6 +65,30 @@ function main() {
     if (meaning && meaning.length > MEANING_SOFT_LIMIT) {
       warnings.push(
         `${label}: meaning is ${meaning.length} chars, above the soft limit of ${MEANING_SOFT_LIMIT}`
+      );
+    }
+
+    // `scenarios` (a pool of alternate situational clues for entries with
+    // only one possible answer, e.g. NOMINAL/ORDINAL/INTERVAL/RATIO) is an
+    // alternative to a single `scenario` string - exactly one form is
+    // expected per entry.
+    if (entry.scenarios != null) {
+      if (!Array.isArray(entry.scenarios) || entry.scenarios.length === 0) {
+        errors.push(`${label}: "scenarios" must be a non-empty array when present`);
+      } else {
+        entry.scenarios.forEach((s, i) => {
+          if (typeof s !== 'string' || !s.trim()) {
+            errors.push(`${label}: scenarios[${i}] must be a non-empty string`);
+          } else if (s.length > SCENARIO_SOFT_LIMIT) {
+            warnings.push(
+              `${label}: scenarios[${i}] is ${s.length} chars, above the soft limit of ${SCENARIO_SOFT_LIMIT}`
+            );
+          }
+        });
+      }
+    } else if (entry.scenario && entry.scenario.length > SCENARIO_SOFT_LIMIT) {
+      warnings.push(
+        `${label}: scenario is ${entry.scenario.length} chars, above the soft limit of ${SCENARIO_SOFT_LIMIT}`
       );
     }
   }

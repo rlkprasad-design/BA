@@ -48,6 +48,16 @@ app - see the comment at the top of `js/supabase-client.js`.
   - `source` is a free-text category tag for the curator's own
     organization (e.g. "Unit 1: Types of Analytics") - never shown to
     players.
+  - An entry can use `scenarios` (a non-empty array of strings) instead of
+    a single `scenario` string, when one word has many distinct confusing
+    examples worth asking about rather than just one. `js/puzzle-engine.js`
+    picks one at random every time that word is drawn - so the same word
+    can present a completely different tricky question on each of its
+    exposures, without needing fake duplicate word+difficulty entries.
+    `NOMINAL`/`ORDINAL`/`INTERVAL`/`RATIO` use this with 13 scenarios each
+    (52 total), since those four words are the only possible answers for
+    "which measurement scale is this?" but the confusing examples worth
+    asking about are practically endless.
 - The 40-entry term bank is grounded in the course's own slides: **Unit I -
   Introduction to Business Analytics** (the science of data-driven
   decisions, the descriptive/predictive/prescriptive spectrum, the four Vs
