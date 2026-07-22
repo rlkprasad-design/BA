@@ -42,8 +42,8 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
     card.style.position = 'relative';
     card.innerHTML = `
       <p>${entry.scenario || entry.meaning}</p>
-      <div class="letter-bank" data-idx="${index}"></div>
-      <div class="answer-area" data-idx="${index}" style="min-height: 2.2em; letter-spacing: 3px; font-weight: 600; margin: 8px 0;"></div>
+      <p class="jumbled-letters" data-idx="${index}">${jumbled.join(' ')}</p>
+      <input type="text" class="answer-input" data-idx="${index}" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your answer" />
       <div class="controls">
         <span class="hint-token">${token.icon}</span>
         <button class="secondary" data-clear="${index}">Clear</button>
@@ -56,48 +56,20 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
     `;
     cardsEl.appendChild(card);
 
-    const bankEl = card.querySelector(`.letter-bank[data-idx="${index}"]`);
-    const answerEl = card.querySelector(`.answer-area[data-idx="${index}"]`);
-    let built = [];
-    let usedIndices = new Set();
+    const inputEl = card.querySelector(`.answer-input[data-idx="${index}"]`);
+    const allButtons = () => card.querySelectorAll('button');
 
-    function renderBank() {
-      bankEl.innerHTML = '';
-      jumbled.forEach((letter, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'secondary';
-        btn.textContent = letter;
-        btn.disabled = usedIndices.has(i);
-        btn.addEventListener('click', () => {
-          if (solved.has(index)) return;
-          built.push({ letter, i });
-          usedIndices.add(i);
-          answerEl.textContent = built.map((b) => b.letter).join('');
-          renderBank();
-        });
-        bankEl.appendChild(btn);
-      });
-    }
-
-    function reset() {
-      built = [];
-      usedIndices = new Set();
-      answerEl.textContent = '';
-      renderBank();
-    }
-
-    card.querySelector(`[data-clear="${index}"]`).addEventListener('click', reset);
-
-    card.querySelector(`[data-submit="${index}"]`).addEventListener('click', () => {
+    function submitAttempt() {
       if (solved.has(index)) return;
       const feedback = card.querySelector(`[data-feedback="${index}"]`);
-      const attempt = built.map((b) => b.letter).join('');
+      const attempt = inputEl.value.trim().toUpperCase();
       if (attempt === entry.word) {
         solved.set(index, 'self');
-        answerEl.textContent = entry.word;
+        inputEl.value = entry.word;
+        inputEl.disabled = true;
         feedback.textContent = 'Correct!';
-        celebrateFind(card, answerEl, entry.difficulty);
-        card.querySelectorAll('button').forEach((b) => (b.disabled = true));
+        celebrateFind(card, inputEl, entry.difficulty);
+        allButtons().forEach((b) => (b.disabled = true));
         const marks = marksForFind(entry.difficulty, 'spelling');
         onMarksEarned(marks); // immediate, local, independent of Supabase
         checkCompletion(); // don't gate user-facing completion on a network round-trip
@@ -105,14 +77,27 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
       } else {
         feedback.textContent = 'Not quite - try again.';
       }
+    }
+
+    card.querySelector(`[data-clear="${index}"]`).addEventListener('click', () => {
+      if (solved.has(index)) return;
+      inputEl.value = '';
+      inputEl.focus();
+    });
+
+    card.querySelector(`[data-submit="${index}"]`).addEventListener('click', submitAttempt);
+
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitAttempt();
     });
 
     card.querySelector(`[data-show="${index}"]`).addEventListener('click', () => {
       if (solved.has(index)) return;
       solved.set(index, 'shown');
-      answerEl.textContent = entry.word;
+      inputEl.value = entry.word;
+      inputEl.disabled = true;
       card.querySelector(`[data-feedback="${index}"]`).textContent = 'Shown - no marks earned.';
-      card.querySelectorAll('button').forEach((b) => (b.disabled = true));
+      allButtons().forEach((b) => (b.disabled = true));
       checkCompletion();
     });
 
@@ -130,8 +115,6 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
         ? 'Not saved - shared flagging needs Supabase configured.'
         : 'Thanks - flagged for review.';
     });
-
-    renderBank();
   });
 
   function checkCompletion() {

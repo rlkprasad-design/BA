@@ -15,7 +15,7 @@ function renderNameGate(onReady) {
   appEl.innerHTML = `
     <div class="name-gate">
       <img class="app-logo app-logo--large" src="assets/logo.svg" alt="" />
-      <h1>BA Quest</h1>
+      <h1>Business Analytics Quest</h1>
       <p>Enter a display name to play. No account needed.</p>
       <input id="name-input" type="text" maxlength="40" placeholder="Your name" />
       <div id="history-slot"></div>
@@ -61,7 +61,7 @@ function renderShell(playerName, questionsData, levelsData) {
       <header class="app-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <img class="app-logo" src="assets/logo.svg" alt="" />
-          <h1>BA Quest</h1>
+          <h1>Business Analytics Quest</h1>
         </div>
         <div>
           <span style="color: var(--muted); margin-right: 12px;">Playing as <strong>${playerName}</strong></span>

@@ -161,6 +161,31 @@ nav.app-nav button.active, nav.app-nav a.active {
   100% { transform: translate(-50%, -50%) scale(12);   opacity: 0; }
 }
 
+/* ---------- Spelling mode ---------- */
+.jumbled-letters {
+  letter-spacing: 6px;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin: 4px 0 10px;
+}
+.answer-input {
+  width: 100%;
+  max-width: 260px;
+  padding: 8px 10px;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  font-weight: 600;
+  border-radius: var(--radius);
+  border: 1px solid var(--panel-2);
+  background: var(--panel-2);
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.answer-input:disabled {
+  opacity: 0.8;
+}
+
 /* ---------- Word list / hints ---------- */
 .hint-list { list-style: none; padding: 0; margin: 16px 0 0; }
 .hint-list li {
