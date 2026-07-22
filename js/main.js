@@ -2,6 +2,8 @@ import { getCurrentPlayer, hasHistory, setActivePlayer, clearActivePlayer } from
 import { getTotalMarks, addTotalMarks } from './puzzle-engine.js';
 import { renderWordSearch } from './wordsearch-ui.js';
 import { renderSpelling } from './spelling-ui.js';
+import { renderTrueFalse } from './truefalse-ui.js';
+import { renderGrouping } from './grouping-ui.js';
 import { renderScoreboard } from './scoreboard.js';
 
 const appEl = document.getElementById('app');
@@ -69,6 +71,8 @@ function renderShell(playerName, questionsData, levelsData) {
           <nav class="app-nav">
             <button data-view="wordsearch" class="active">Word Search</button>
             <button data-view="spelling">Spelling</button>
+            <button data-view="truefalse">True/False</button>
+            <button data-view="grouping">Grouping</button>
             <button data-view="scoreboard">Scoreboard</button>
             <button id="switch-player-btn">Switch player</button>
           </nav>
@@ -101,6 +105,20 @@ function renderShell(playerName, questionsData, levelsData) {
       });
     } else if (view === 'spelling') {
       renderSpelling(contentEl, {
+        questionsData,
+        playerName,
+        onExhausted: () => showView('wordsearch'),
+        onMarksEarned,
+      });
+    } else if (view === 'truefalse') {
+      renderTrueFalse(contentEl, {
+        questionsData,
+        playerName,
+        onExhausted: () => showView('wordsearch'),
+        onMarksEarned,
+      });
+    } else if (view === 'grouping') {
+      renderGrouping(contentEl, {
         questionsData,
         playerName,
         onExhausted: () => showView('wordsearch'),

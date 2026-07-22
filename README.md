@@ -2,11 +2,11 @@
 
 # BA Quest
 
-A calm, laptop-first recall game for Business Analytics terms - word search
-and spelling/unscramble modes, with a shared class scoreboard. Built the
-same way as its sister app (a Values-Oriented Management recall game),
-reusing the same proven engine and avoiding the same previously-shipped
-bugs.
+A calm, laptop-first recall game for Business Analytics terms - word search,
+spelling/unscramble, true/false, and card grouping modes, with a shared
+class scoreboard. Built the same way as its sister app (a Values-Oriented
+Management recall game), reusing the same proven engine and avoiding the
+same previously-shipped bugs.
 
 ## Running locally
 
@@ -97,11 +97,12 @@ app - see the comment at the top of `js/supabase-client.js`.
   worth 1 / 3 / 6 base marks - mapped to grouped Bloom's Taxonomy levels
   (easy = Remember+Understand, medium = Apply+Analyze, difficult =
   Evaluate+Create).
-- **Mode multiplier**: Word Search ("crossword") awards double a tier's base
-  marks per find; Spelling awards the base value as-is. Finding a word
-  hidden among filler letters is a harder recall task than assembling it
-  from an already-isolated letter tray, so it's worth more - see
-  `MODE_MULTIPLIERS` in `js/gems.js`.
+- **Mode multiplier**: Word Search ("crossword") and Card Grouping award
+  double a tier's base marks per find; Spelling and True/False award the
+  base value as-is. Finding a word hidden among filler letters, or
+  correctly recalling which category a term belongs to, is a harder recall
+  task than assembling a word from an already-isolated letter tray or
+  making a binary true/false call - see `MODE_MULTIPLIERS` in `js/gems.js`.
 - **`scenario` field**: added to the schema now, even though v1's UI only
   displays it as an alternate hint text (falls back to `meaning` if empty).
 
@@ -116,9 +117,11 @@ for tokens/marks) rather than treating them as fixed.
   particular grid-size roll stays queued (skipped, not discarded) - it
   reappears once a bigger grid rolls. A fresh cycle is only reshuffled once
   the queue is completely empty.
-- Word search and spelling mode share the same per-difficulty pools, draw
-  queues, and exposure counts - playing one counts as "being asked" a word
-  for the other's rotation too.
+- Word search, spelling, and true/false all share the same per-difficulty
+  pools, draw queues, and exposure counts - playing any one of them counts
+  as "being asked" a word for the others' rotation too. Card grouping draws
+  from the same exposure counts as well, but groups by category rather than
+  by difficulty tier (see below).
 - Each word is retired from rotation after being asked 10 times
   (`EXPOSURE_CAP` in `js/puzzle-engine.js`). Once every word in the pool
   has hit that cap, players see a "you've seen everything" screen with a
@@ -145,6 +148,31 @@ for tokens/marks) rather than treating them as fixed.
   rather than resolve with an error, and local UI feedback should never be
   at the mercy of that.
 
+### True/False mode
+
+- `drawTrueFalseSet` (`js/puzzle-engine.js`) draws from the same mixed
+  difficulty pool as word search/spelling. For each drawn word, it flips a
+  coin: heads, the claim shown is that word's own meaning/scenario (true);
+  tails, the claim is borrowed from a different entry - preferring one of
+  the same difficulty tier so an impostor claim doesn't stand out just by
+  looking harder or easier. The borrowed entry isn't itself counted as
+  exposed, since it isn't really being asked about.
+- Marks are only awarded for a genuine correct guess. "Show answer" reveals
+  the truth and locks the card, but earns nothing, matching the same
+  convention as word search/spelling.
+
+### Card Grouping mode
+
+- `drawGroupingRound` needs no new content: it buckets by each entry's
+  existing `source` tag (already present purely for curator organization
+  elsewhere) rather than any new taxonomy. It only offers categories with 2
+  or more not-yet-exposure-capped members, and returns `null` (triggering
+  the "seen everything" screen) once fewer than 2 such categories remain.
+- Placing a card correctly awards marks immediately and removes it from the
+  tray; placing it in the wrong bucket shakes that bucket and leaves the
+  card selected for another attempt. A round completes once every drawn
+  card has been correctly placed.
+
 ## Known gap from this environment
 
 This app was built and tested in a sandboxed dev environment whose network
@@ -154,8 +182,10 @@ that doesn't require reaching those hosts was verified in a real Chromium
 browser: the name gate and history notice, word-search drag-to-find
 (including the gem-burst animation's actual rendered bounding box, not just
 its DOM presence), the "Show answer" visual distinction, spelling mode's
-letter-click-to-build flow, and the scoreboard's graceful no-crash fallback
-when Supabase can't be reached. The actual round-trip to Supabase (writing
+letter-click-to-build flow, true/false's answer/lock/reveal flow, card
+grouping's select-then-place flow (including the wrong-bucket shake), and
+the scoreboard's graceful no-crash fallback when Supabase can't be reached.
+The actual round-trip to Supabase (writing
 a score, reading the scoreboard back, submitting a flag) could not be
 exercised from this environment and should be checked once deployed.
 

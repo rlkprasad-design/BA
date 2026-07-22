@@ -52,7 +52,7 @@ function randInt(min, max) {
 // set of confusing questions across its exposures, without needing fake
 // duplicate word+difficulty entries. Resolved once per draw - not
 // re-randomized on every re-render within the same puzzle/round.
-function resolveScenario(entry) {
+export function resolveScenario(entry) {
   if (Array.isArray(entry.scenarios) && entry.scenarios.length > 0) {
     const picked = entry.scenarios[randInt(0, entry.scenarios.length - 1)];
     return { ...entry, scenario: picked };
@@ -315,4 +315,66 @@ export function drawSpellingSet(playerName, questionsData, count = 8) {
 export function isPoolExhausted(playerName, questionsData) {
   const exposureCounts = getExposureCounts(playerName);
   return questionsData.entries.every((e) => (exposureCounts[e.word] || 0) >= EXPOSURE_CAP);
+}
+
+// True/False mode reuses the same draw/exposure/queue machinery as
+// Word Search and Spelling (drawn words count as "asked" for rotation
+// purposes the same way). For each drawn word, a claim is built pairing
+// it with either its OWN meaning/scenario (true) or a DIFFERENT entry's
+// (false) - the impostor entry is picked directly from the full pool and
+// does NOT itself count as exposed, since it isn't really being asked
+// about, just borrowed for its text. Returns null only when the shared
+// pool is genuinely exhausted.
+export function drawTrueFalseSet(playerName, questionsData, count = 10) {
+  const { selected } = drawMixedWordSet(playerName, questionsData.entries, count, Infinity);
+  if (selected.length === 0) return null;
+
+  return selected.map((entry) => {
+    const isTrue = Math.random() < 0.5;
+    if (isTrue) {
+      return { word: entry.word, difficulty: entry.difficulty, isTrue, claimText: entry.scenario || entry.meaning };
+    }
+    const sameTier = questionsData.entries.filter((e) => e.word !== entry.word && e.difficulty === entry.difficulty);
+    const pool = sameTier.length > 0 ? sameTier : questionsData.entries.filter((e) => e.word !== entry.word);
+    const impostor = resolveScenario(pool[randInt(0, pool.length - 1)]);
+    return { word: entry.word, difficulty: entry.difficulty, isTrue, claimText: impostor.scenario || impostor.meaning };
+  });
+}
+
+// Card Grouping mode: sort word cards into their correct `source` category
+// bucket. Categories are drawn from each entry's existing `source` tag
+// (already used purely for curator organization elsewhere), so this needs
+// no new content - just enough distinct categories with 2+ not-yet-capped
+// members. Returns null when fewer than 2 such categories remain (either
+// the pool is genuinely exhausted, or what's left is too thin to group
+// meaningfully) - callers should show the "seen everything" screen.
+export function drawGroupingRound(playerName, questionsData, { categoryCount = 3, cardsPerCategory = 3 } = {}) {
+  const exposureCounts = getExposureCounts(playerName);
+
+  const bySource = new Map();
+  for (const entry of questionsData.entries) {
+    if ((exposureCounts[entry.word] || 0) >= EXPOSURE_CAP) continue;
+    if (!bySource.has(entry.source)) bySource.set(entry.source, []);
+    bySource.get(entry.source).push(entry);
+  }
+
+  const eligibleSources = [...bySource.entries()].filter(([, list]) => list.length >= 2);
+  if (eligibleSources.length < 2) return null;
+
+  const chosenSources = shuffle(eligibleSources).slice(0, categoryCount);
+  const categories = chosenSources.map(([source, list]) => ({
+    source,
+    cards: shuffle(list)
+      .slice(0, Math.min(cardsPerCategory, list.length))
+      .map((e) => ({ word: e.word, difficulty: e.difficulty })),
+  }));
+
+  for (const category of categories) {
+    for (const card of category.cards) {
+      exposureCounts[card.word] = (exposureCounts[card.word] || 0) + 1;
+    }
+  }
+  setExposureCounts(playerName, exposureCounts);
+
+  return categories;
 }

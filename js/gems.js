@@ -12,10 +12,16 @@ export const TIER_TOKENS = {
 // Word search ("crossword") requires finding a hidden word amid filler
 // letters - a harder recall task than picking letters already isolated in
 // a spelling/unscramble tray - so it's worth double a spelling find of the
-// same tier, not just an equal flat mark.
+// same tier, not just an equal flat mark. True/False is a binary guess, so
+// it's worth the same as Spelling, not more. Grouping requires correctly
+// recalling which category a term belongs to among several options -
+// genuine conceptual knowledge, not just letter-finding - so it's worth
+// the same as Word Search.
 export const MODE_MULTIPLIERS = {
   wordsearch: 2,
   spelling: 1,
+  truefalse: 1,
+  grouping: 2,
 };
 
 export function marksForFind(difficulty, mode) {
