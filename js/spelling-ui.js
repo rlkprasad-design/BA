@@ -2,16 +2,30 @@ import { drawSpellingSet, incrementPuzzlesCompleted } from './puzzle-engine.js';
 import { TIER_TOKENS, celebrateFind, marksForFind } from './gems.js';
 import { recordFind, flagTerm } from './supabase-client.js';
 
+// Multi-word terms (e.g. "COVERAGE ERROR") keep their space fixed in place
+// rather than shuffling it into a random spot - it reads as a structural
+// hint (where the word breaks), not something to hide, and a space
+// wandering into the middle of a jumbled letter run would just look broken.
 function shuffledLetters(word) {
-  const letters = word.split('');
-  if (letters.length < 2) return letters;
+  const chars = word.split('');
+  const spaceIndices = [];
+  const letters = [];
+  chars.forEach((c, i) => {
+    if (c === ' ') spaceIndices.push(i);
+    else letters.push(c);
+  });
+
+  if (letters.length < 2) return chars;
+
   let shuffled;
   do {
     shuffled = letters
       .map((l) => ({ l, k: Math.random() }))
       .sort((a, b) => a.k - b.k)
       .map((x) => x.l);
-  } while (shuffled.join('') === word);
+  } while (shuffled.join('') === letters.join(''));
+
+  for (const idx of spaceIndices) shuffled.splice(idx, 0, ' ');
   return shuffled;
 }
 
@@ -62,8 +76,11 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
     function submitAttempt() {
       if (solved.has(index)) return;
       const feedback = card.querySelector(`[data-feedback="${index}"]`);
-      const attempt = inputEl.value.trim().toUpperCase();
-      if (attempt === entry.word) {
+      // Whitespace-tolerant: a multi-word answer like "COVERAGE ERROR"
+      // matches whether or not the player actually types the space.
+      const attempt = inputEl.value.trim().toUpperCase().replace(/\s+/g, ' ');
+      const target = entry.word.replace(/\s+/g, ' ');
+      if (attempt === target || attempt.replace(/\s/g, '') === target.replace(/\s/g, '')) {
         solved.set(index, 'self');
         inputEl.value = entry.word;
         inputEl.disabled = true;

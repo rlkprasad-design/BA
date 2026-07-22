@@ -69,7 +69,17 @@ export function renderWordSearch(container, { questionsData, level, playerName, 
       cell.className = 'grid-cell';
       cell.dataset.row = r;
       cell.dataset.col = c;
-      cell.textContent = grid[r][c];
+      // A space (the gap in a multi-word term like "COVERAGE ERROR") is
+      // still a real cell in the drag path - matching is by coordinates,
+      // not displayed character, so this is purely cosmetic. Shown as a
+      // small centered dot rather than a truly empty square, so it reads
+      // as "intentionally blank" instead of looking like a render glitch.
+      if (grid[r][c] === ' ') {
+        cell.classList.add('grid-cell-blank');
+        cell.textContent = '·';
+      } else {
+        cell.textContent = grid[r][c];
+      }
       gridEl.appendChild(cell);
     }
   }

@@ -58,6 +58,15 @@ app - see the comment at the top of `js/supabase-client.js`.
     (52 total), since those four words are the only possible answers for
     "which measurement scale is this?" but the confusing examples worth
     asking about are practically endless.
+  - **Multi-word terms** (e.g. `COVERAGE ERROR`, `SURVIVOR BIAS`) keep a
+    real space rather than being mashed into one unbroken blob like
+    `COVERAGEERROR` - typing the natural two-word phrase in Spelling mode
+    should work, not get silently rejected for not matching a compressed
+    form nobody would guess. In Word Search, the space places as a genuine
+    blank grid cell (still part of the drag path); in Spelling, the jumbled
+    letters keep the space fixed at its original position rather than
+    scrambling it into a random spot, and a typed attempt matches whether
+    or not the player includes the space themselves.
 - The 40-entry term bank is grounded in the course's own slides: **Unit I -
   Introduction to Business Analytics** (the science of data-driven
   decisions, the descriptive/predictive/prescriptive spectrum, the four Vs
@@ -79,10 +88,11 @@ app - see the comment at the top of `js/supabase-client.js`.
 ### Decisions made explicit (per the build brief)
 
 - **Tracing/handwriting mode**: not included. Skipped by request.
-- **Max grid size**: 13x13 - originally 15x15, lowered after real play (on
-  the sibling DBMS Quest app, same engine) found the largest grids
-  uncomfortably big on a laptop screen. The longest word in this bank
-  (13 chars: `COVERAGEERROR`) exactly matches the cap.
+- **Max grid size**: 14x14 - originally 15x15, lowered to 13 after real play
+  (on the sibling DBMS Quest app, same engine) found the largest grids
+  uncomfortably big, then raised back to 14 to fit multi-word terms with
+  a real space (`COVERAGE ERROR`, 14 chars) rather than mashing them into
+  one unbroken blob - see "Multi-word terms" below.
 - **Reward tiers**: Bronze / Silver / Gold for easy / medium / difficult,
   worth 1 / 3 / 6 base marks - mapped to grouped Bloom's Taxonomy levels
   (easy = Remember+Understand, medium = Apply+Analyze, difficult =
