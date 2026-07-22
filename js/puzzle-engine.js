@@ -45,6 +45,21 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// Some entries carry a `scenarios` array (a pool of alternate situational
+// clues, e.g. many distinct "which scale is this?" examples for a single
+// word like NOMINAL) instead of a single `scenario` string. This lets a
+// word with only one possible answer still present a large, non-repeating
+// set of confusing questions across its exposures, without needing fake
+// duplicate word+difficulty entries. Resolved once per draw - not
+// re-randomized on every re-render within the same puzzle/round.
+function resolveScenario(entry) {
+  if (Array.isArray(entry.scenarios) && entry.scenarios.length > 0) {
+    const picked = entry.scenarios[randInt(0, entry.scenarios.length - 1)];
+    return { ...entry, scenario: picked };
+  }
+  return entry;
+}
+
 export function getPuzzlesCompleted(playerName) {
   return readPlayerJson(PUZZLES_COMPLETED_KEY, playerName, 0);
 }
@@ -256,7 +271,7 @@ function drawMixedWordSet(playerName, entries, totalCount, sizeLimit) {
   }
   setExposureCounts(playerName, exposureCounts);
 
-  return { selected, puzzlesCompleted };
+  return { selected: selected.map(resolveScenario), puzzlesCompleted };
 }
 
 // Returns null only when the pool is genuinely exhausted (every word at
