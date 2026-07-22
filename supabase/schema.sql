@@ -8,8 +8,21 @@ create table if not exists ba_scores (
   silver_count integer not null default 0,
   gold_count integer not null default 0,
   total_marks integer not null default 0,
+  wordsearch_marks integer not null default 0,
+  spelling_marks integer not null default 0,
+  truefalse_marks integer not null default 0,
+  grouping_marks integer not null default 0,
   updated_at timestamptz not null default now()
 );
+
+-- Safe to re-run against an already-created table: `create table if not
+-- exists` above never adds columns to a table that already exists, so an
+-- existing deployment needs these explicitly. Each one is itself
+-- idempotent, so running this whole file again is always safe.
+alter table ba_scores add column if not exists wordsearch_marks integer not null default 0;
+alter table ba_scores add column if not exists spelling_marks integer not null default 0;
+alter table ba_scores add column if not exists truefalse_marks integer not null default 0;
+alter table ba_scores add column if not exists grouping_marks integer not null default 0;
 
 create table if not exists ba_flagged_terms (
   id bigint generated always as identity primary key,

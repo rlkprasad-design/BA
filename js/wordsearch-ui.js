@@ -157,7 +157,7 @@ export function renderWordSearch(container, { questionsData, level, playerName, 
     const marks = marksForFind(placement.difficulty, 'wordsearch');
     onMarksEarned(marks); // immediate, local, independent of Supabase
     checkCompletion(); // don't gate user-facing completion on a network round-trip
-    recordFind(playerName, placement.difficulty, marks);
+    recordFind(playerName, placement.difficulty, marks, 'wordsearch');
   }
 
   function checkCompletion() {

@@ -52,7 +52,7 @@ export function renderTrueFalse(container, { questionsData, playerName, onExhaus
         const marks = marksForFind(claim.difficulty, 'truefalse');
         onMarksEarned(marks); // immediate, local, independent of Supabase
         checkCompletion(); // don't gate user-facing completion on a network round-trip
-        recordFind(playerName, claim.difficulty, marks);
+        recordFind(playerName, claim.difficulty, marks, 'truefalse');
       } else {
         answered.set(index, 'wrong');
         feedback.textContent = `Not quite - this claim is actually ${claim.isTrue ? 'true' : 'false'}.`;

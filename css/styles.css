@@ -304,6 +304,7 @@ button.secondary {
 }
 
 /* ---------- Scoreboard ---------- */
+.table-scroll { overflow-x: auto; } /* per-mode columns can outgrow small screens */
 table.scoreboard { width: 100%; border-collapse: collapse; }
 table.scoreboard th, table.scoreboard td {
   text-align: left;
