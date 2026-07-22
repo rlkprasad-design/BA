@@ -43,6 +43,20 @@ header.app-header h1 {
   margin: 0;
 }
 
+.app-logo {
+  width: 28px;
+  height: 28px;
+  display: block;
+  border-radius: 6px;
+}
+
+.app-logo--large {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 8px;
+  border-radius: 14px;
+}
+
 nav.app-nav a, nav.app-nav button {
   background: none;
   border: 1px solid var(--panel-2);
