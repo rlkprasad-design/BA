@@ -43,14 +43,25 @@ alter table ba_flagged_terms enable row level security;
 -- display name" identity model described in the brief - there is no
 -- server-side way to verify identity, so RLS here is intentionally open
 -- rather than pretending otherwise.
+--
+-- `create policy` has no `if not exists` form, unlike the table/column
+-- statements above - re-running this file against an already-set-up
+-- project would otherwise fail with "policy already exists" the moment it
+-- reached these. `drop policy if exists` immediately before each one makes
+-- the whole file safely re-runnable end to end.
+drop policy if exists "Anyone can read scores" on ba_scores;
 create policy "Anyone can read scores" on ba_scores
   for select using (true);
+drop policy if exists "Anyone can upsert their own score row" on ba_scores;
 create policy "Anyone can upsert their own score row" on ba_scores
   for insert with check (true);
+drop policy if exists "Anyone can update score rows" on ba_scores;
 create policy "Anyone can update score rows" on ba_scores
   for update using (true);
 
+drop policy if exists "Anyone can read flagged terms" on ba_flagged_terms;
 create policy "Anyone can read flagged terms" on ba_flagged_terms
   for select using (true);
+drop policy if exists "Anyone can submit a flag" on ba_flagged_terms;
 create policy "Anyone can submit a flag" on ba_flagged_terms
   for insert with check (true);
