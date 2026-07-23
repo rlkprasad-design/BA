@@ -203,7 +203,7 @@ nav.app-nav button.active, nav.app-nav a.active {
 }
 
 /* ---------- True/False mode ---------- */
-.truefalse-term { color: var(--muted); font-size: 0.95rem; margin-bottom: 2px; }
+.truefalse-claim { color: var(--muted); font-weight: 600; margin: 6px 0 2px; }
 .truefalse-card .controls { margin-top: 10px; }
 
 /* ---------- Card Grouping mode ---------- */

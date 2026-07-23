@@ -196,6 +196,15 @@ for tokens/marks) rather than treating them as fixed.
 - Marks are only awarded for a genuine correct guess. "Show answer" reveals
   the truth and locks the card, but earns nothing, matching the same
   convention as word search/spelling.
+- **Framing**: every scenario is authored as "[situation]. [What/Which ...
+  is this?]" for word search/spelling, where the player supplies the
+  missing term - but that trailing question left True/False with a
+  dangling question next to a bare term, nothing a player could actually
+  call true or false. `situationOnly()` in `js/truefalse-ui.js` strips
+  that final question sentence (handling embedded periods like "Mr." and
+  internal rhetorical questions correctly - it only removes the genuinely
+  last sentence, not the first "?" it finds), and the card instead states
+  an explicit "Claim: this is an example of X" for the player to judge.
 
 ### Card Grouping mode
 
