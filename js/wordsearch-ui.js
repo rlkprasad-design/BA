@@ -51,7 +51,9 @@ export function renderWordSearch(container, { questionsData, level, playerName, 
 
   container.innerHTML = `
     <div class="panel">
-      <div class="grid-container" id="grid" style="grid-template-columns: repeat(${gridSize}, 34px);"></div>
+      <div class="grid-scroll">
+        <div class="grid-container" id="grid" style="grid-template-columns: repeat(${gridSize}, 40px);"></div>
+      </div>
     </div>
     <div class="panel">
       <h3>Find these terms</h3>

@@ -1,9 +1,9 @@
 :root {
-  --bg: #0f172a;
-  --panel: #1e293b;
-  --panel-2: #263449;
-  --ink: #e2e8f0;
-  --muted: #94a3b8;
+  --bg: #1a2436;
+  --panel: #232f45;
+  --panel-2: #2d3c56;
+  --ink: #eef2f8;
+  --muted: #aab6c9;
   --accent: #38bdf8;
   --accent-2: #22c55e;
   --gold: #facc15;
@@ -17,10 +17,19 @@
 
 * { box-sizing: border-box; }
 
+html, body {
+  /* Belt-and-suspenders: any one wide element (the word-search grid, the
+     scoreboard table) gets its own overflow-x:auto wrapper below, so the
+     page itself should never need to scroll sideways - this just
+     guarantees that even if something is missed, the page can't. */
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 17px;
   background: var(--bg);
   color: var(--ink);
 }
@@ -36,10 +45,12 @@ header.app-header {
   align-items: baseline;
   justify-content: space-between;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 header.app-header h1 {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   margin: 0;
 }
 
@@ -61,11 +72,11 @@ nav.app-nav a, nav.app-nav button {
   background: none;
   border: 1px solid var(--panel-2);
   color: var(--ink);
-  padding: 6px 12px;
+  padding: 10px 18px;
   border-radius: var(--radius);
   margin-left: 8px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
 }
 
 nav.app-nav button.active, nav.app-nav a.active {
@@ -88,8 +99,8 @@ nav.app-nav button.active, nav.app-nav a.active {
 }
 .name-gate input {
   width: 100%;
-  padding: 10px 12px;
-  font-size: 1rem;
+  padding: 12px 14px;
+  font-size: 1.1rem;
   border-radius: var(--radius);
   border: 1px solid var(--panel-2);
   background: var(--panel-2);
@@ -97,8 +108,8 @@ nav.app-nav button.active, nav.app-nav a.active {
   margin: 12px 0;
 }
 .name-gate button {
-  padding: 10px 20px;
-  font-size: 1rem;
+  padding: 12px 22px;
+  font-size: 1.1rem;
   border-radius: var(--radius);
   border: none;
   background: var(--accent);
@@ -110,12 +121,16 @@ nav.app-nav button.active, nav.app-nav a.active {
   background: var(--panel-2);
   border-radius: var(--radius);
   padding: 12px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--muted);
   margin-top: 12px;
 }
 
 /* ---------- Grid ---------- */
+.grid-scroll {
+  overflow-x: auto; /* the grid itself scrolls if it's wider than the panel, not the page */
+}
+
 .grid-container {
   position: relative; /* required: gem-burst anchors to this, unclipped */
   display: grid;
@@ -128,20 +143,20 @@ nav.app-nav button.active, nav.app-nav a.active {
 
 .grid-cell {
   overflow: hidden; /* keeps long selection drags from spilling visually */
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--panel-2);
   border-radius: 4px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: var(--ink);
   cursor: pointer;
 }
 
-.grid-cell.dragging { background: #334155; }
+.grid-cell.dragging { background: #3d4d68; }
 .grid-cell.found-self { background: var(--found-self); color: #dcfce7; }
 .grid-cell.found-shown { background: var(--found-shown); color: #fef3c7; }
 .grid-cell-blank { color: var(--muted); font-weight: 400; }
@@ -166,15 +181,15 @@ nav.app-nav button.active, nav.app-nav a.active {
 .jumbled-letters {
   letter-spacing: 6px;
   font-weight: 600;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   color: var(--accent);
   margin: 4px 0 10px;
 }
 .answer-input {
   width: 100%;
-  max-width: 260px;
-  padding: 8px 10px;
-  font-size: 1rem;
+  max-width: 280px;
+  padding: 10px 12px;
+  font-size: 1.15rem;
   letter-spacing: 2px;
   font-weight: 600;
   border-radius: var(--radius);
@@ -188,7 +203,7 @@ nav.app-nav button.active, nav.app-nav a.active {
 }
 
 /* ---------- True/False mode ---------- */
-.truefalse-term { color: var(--muted); font-size: 0.85rem; margin-bottom: 2px; }
+.truefalse-term { color: var(--muted); font-size: 0.95rem; margin-bottom: 2px; }
 .truefalse-card .controls { margin-top: 10px; }
 
 /* ---------- Card Grouping mode ---------- */
@@ -204,14 +219,14 @@ nav.app-nav button.active, nav.app-nav a.active {
   min-width: 180px;
   background: var(--panel-2);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 14px;
   cursor: pointer;
   transition: box-shadow 0.15s ease;
 }
 .bucket:hover { box-shadow: 0 0 0 1px var(--accent) inset; }
 .bucket-title {
   margin: 0 0 8px;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--muted);
   font-weight: 600;
 }
@@ -225,8 +240,8 @@ nav.app-nav button.active, nav.app-nav a.active {
   background: var(--found-self);
   color: #dcfce7;
   border-radius: 6px;
-  padding: 6px 8px;
-  font-size: 0.9rem;
+  padding: 7px 10px;
+  font-size: 1rem;
   font-weight: 600;
 }
 .bucket-wrong { animation: bucket-shake 0.4s ease; box-shadow: 0 0 0 1px var(--danger) inset; }
@@ -244,7 +259,8 @@ nav.app-nav button.active, nav.app-nav a.active {
   background: var(--panel-2);
   border: 1px solid var(--panel-2);
   color: var(--ink);
-  padding: 8px 14px;
+  padding: 10px 18px;
+  font-size: 1rem;
   border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
@@ -252,7 +268,7 @@ nav.app-nav button.active, nav.app-nav a.active {
 .card-tray .card.selected {
   border-color: var(--accent);
   color: var(--accent);
-  background: #1e3a4a;
+  background: #223d52;
 }
 
 /* ---------- Word list / hints ---------- */
@@ -261,24 +277,24 @@ nav.app-nav button.active, nav.app-nav a.active {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--panel-2);
-  font-size: 0.92rem;
+  font-size: 1.02rem;
 }
 .hint-list li.solved { color: var(--muted); text-decoration: line-through; }
-.hint-token { font-size: 1rem; }
+.hint-token { font-size: 1.1rem; }
 
 .flag-icon {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: var(--muted);
 }
 .flag-icon:hover { color: var(--danger); }
 .flag-caption {
   display: block;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   color: var(--muted);
   margin-top: 2px;
 }
@@ -289,7 +305,8 @@ button.primary {
   background: var(--accent);
   color: #04141f;
   border: none;
-  padding: 8px 16px;
+  padding: 12px 22px;
+  font-size: 1.05rem;
   border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
@@ -298,7 +315,8 @@ button.secondary {
   background: none;
   border: 1px solid var(--panel-2);
   color: var(--ink);
-  padding: 8px 16px;
+  padding: 12px 22px;
+  font-size: 1.05rem;
   border-radius: var(--radius);
   cursor: pointer;
 }
@@ -308,12 +326,13 @@ button.secondary {
 table.scoreboard { width: 100%; border-collapse: collapse; }
 table.scoreboard th, table.scoreboard td {
   text-align: left;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--panel-2);
+  font-size: 1rem;
 }
-table.scoreboard th { color: var(--muted); font-weight: 500; font-size: 0.85rem; }
+table.scoreboard th { color: var(--muted); font-weight: 600; font-size: 0.95rem; }
 
-.legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px; font-size: 0.85rem; color: var(--muted); }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px; font-size: 0.95rem; color: var(--muted); }
 .legend .token { color: var(--ink); }
 
 /* ---------- "Seen it all" screen ---------- */
@@ -323,5 +342,5 @@ table.scoreboard th { color: var(--muted); font-weight: 500; font-size: 0.85rem;
 }
 
 @media (max-width: 640px) {
-  .grid-cell { width: 26px; height: 26px; font-size: 0.8rem; }
+  .grid-cell { width: 32px; height: 32px; font-size: 0.95rem; }
 }
