@@ -1,6 +1,6 @@
 import { drawGroupingRound, incrementPuzzlesCompleted } from './puzzle-engine.js';
 import { celebrateFind, marksForFind } from './gems.js';
-import { recordFind } from './supabase-client.js';
+import { recordFind, recordTimeSpent } from './supabase-client.js';
 
 export function renderGrouping(container, { questionsData, playerName, onExhausted, onMarksEarned }) {
   const categories = drawGroupingRound(playerName, questionsData, { categoryCount: 3, cardsPerCategory: 3 });
@@ -53,6 +53,7 @@ export function renderGrouping(container, { questionsData, playerName, onExhaust
   const trayEl = container.querySelector('#card-tray');
   const placed = new Map(); // word -> true once correctly placed
   let selectedWord = null;
+  const startedAt = Date.now();
 
   function setSelected(word) {
     selectedWord = word;
@@ -100,6 +101,7 @@ export function renderGrouping(container, { questionsData, playerName, onExhaust
     if (placed.size < cardMeta.size) return;
     incrementPuzzlesCompleted(playerName);
     const marksEarned = [...cardMeta.values()].reduce((sum, meta) => sum + marksForFind(meta.difficulty, 'grouping'), 0);
+    recordTimeSpent(playerName, Math.round((Date.now() - startedAt) / 1000));
     const banner = container.querySelector('#completion-banner');
     banner.innerHTML = `
       <strong>Round complete! +${marksEarned} marks.</strong>

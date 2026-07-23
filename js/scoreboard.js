@@ -3,6 +3,21 @@ import { fetchTopScores, fetchFlaggedTerms } from './supabase-client.js';
 
 const DEFAULT_VISIBLE = 10;
 
+// Approximate, not exact: measured as wall-clock time between a round
+// starting and completing, so an idle/backgrounded tab between those two
+// moments inflates it too (capped per completion - see
+// MAX_SECONDS_PER_COMPLETION in supabase-client.js). Good enough for "who's
+// spending a lot of time practicing", not a precise attention timer.
+function formatDuration(totalSeconds) {
+  const s = Math.max(0, totalSeconds || 0);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${sec}s`;
+  return `${sec}s`;
+}
+
 export async function renderScoreboard(container) {
   container.innerHTML = `<div class="panel"><p>Loading scoreboard...</p></div>`;
 
@@ -26,6 +41,7 @@ export async function renderScoreboard(container) {
           <td>${row.truefalse_marks || 0}</td>
           <td>${row.grouping_marks || 0}</td>
           <td><strong>${row.total_marks}</strong></td>
+          <td>${formatDuration(row.total_seconds)}</td>
         </tr>`
       )
       .join('');
@@ -36,10 +52,10 @@ export async function renderScoreboard(container) {
         <thead>
           <tr>
             <th>#</th><th>Player</th><th>Bronze</th><th>Silver</th><th>Gold</th>
-            <th>Word Search</th><th>Spelling</th><th>True/False</th><th>Grouping</th><th>Marks</th>
+            <th>Word Search</th><th>Spelling</th><th>True/False</th><th>Grouping</th><th>Marks</th><th>Time Spent</th>
           </tr>
         </thead>
-        <tbody>${rows || '<tr><td colspan="10">No scores yet - be the first!</td></tr>'}</tbody>
+        <tbody>${rows || '<tr><td colspan="11">No scores yet - be the first!</td></tr>'}</tbody>
       </table>
       </div>
       ${
@@ -54,6 +70,7 @@ export async function renderScoreboard(container) {
         <span>Word Search and Grouping are worth double these marks per find; Spelling and True/False award the base value.</span>
         <span>"Show answer" earns no token or marks.</span>
         <span>The Word Search/Spelling/True-False/Grouping columns show marks earned in that mode specifically.</span>
+        <span>Time Spent is approximate - it's the wall-clock time between starting and finishing each puzzle/set/round.</span>
       </div>
     `;
 

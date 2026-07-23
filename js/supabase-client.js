@@ -31,6 +31,13 @@ const MODE_COLUMN = {
   grouping: 'grouping_marks',
 };
 
+// Caps how much elapsed wall-clock time a single puzzle/set/round
+// completion can add to a player's total - without it, leaving a tab open
+// (idle, backgrounded, laptop asleep) between starting and finishing one
+// round would inflate "time spent" by however long the tab sat open, not
+// how long the player was actually engaged.
+const MAX_SECONDS_PER_COMPLETION = 60 * 60;
+
 let clientPromise = null;
 
 function getClient() {
@@ -68,6 +75,7 @@ export async function recordFind(playerName, difficulty, marksDelta, mode) {
       spelling_marks: 0,
       truefalse_marks: 0,
       grouping_marks: 0,
+      total_seconds: 0,
     };
 
     const column = TIER_COLUMN[difficulty];
@@ -86,6 +94,46 @@ export async function recordFind(playerName, difficulty, marksDelta, mode) {
   }
 }
 
+// Called once per completed puzzle/set/round (not per find) with the
+// wall-clock seconds between that round's render and its completion - see
+// each *-ui.js's `startedAt`/checkCompletion for where this is measured.
+export async function recordTimeSpent(playerName, secondsDelta) {
+  try {
+    const supabase = await getClient();
+    if (!supabase) return { localOnly: true };
+
+    const { data: existing, error: selectError } = await supabase
+      .from('ba_scores')
+      .select('*')
+      .eq('player_name', playerName)
+      .maybeSingle();
+    if (selectError) console.error('recordTimeSpent select failed:', selectError.message);
+
+    const row = existing || {
+      player_name: playerName,
+      bronze_count: 0,
+      silver_count: 0,
+      gold_count: 0,
+      total_marks: 0,
+      wordsearch_marks: 0,
+      spelling_marks: 0,
+      truefalse_marks: 0,
+      grouping_marks: 0,
+      total_seconds: 0,
+    };
+
+    const cappedDelta = Math.max(0, Math.min(secondsDelta, MAX_SECONDS_PER_COMPLETION));
+    row.total_seconds = (row.total_seconds || 0) + cappedDelta;
+
+    const { error } = await supabase.from('ba_scores').upsert(row, { onConflict: 'player_name' });
+    if (error) console.error('recordTimeSpent upsert failed:', error.message);
+    return { localOnly: false };
+  } catch (err) {
+    console.warn('recordTimeSpent failed unexpectedly, continuing in local-only mode:', err);
+    return { localOnly: true };
+  }
+}
+
 export async function fetchTopScores(limit = 50) {
   try {
     const supabase = await getClient();
@@ -93,7 +141,7 @@ export async function fetchTopScores(limit = 50) {
     const { data, error } = await supabase
       .from('ba_scores')
       .select(
-        'player_name, bronze_count, silver_count, gold_count, total_marks, wordsearch_marks, spelling_marks, truefalse_marks, grouping_marks'
+        'player_name, bronze_count, silver_count, gold_count, total_marks, wordsearch_marks, spelling_marks, truefalse_marks, grouping_marks, total_seconds'
       )
       .order('total_marks', { ascending: false })
       .limit(limit);

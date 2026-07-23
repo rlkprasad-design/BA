@@ -1,6 +1,6 @@
 import { generatePuzzle, incrementPuzzlesCompleted } from './puzzle-engine.js';
 import { TIER_TOKENS, celebrateFind, marksForFind } from './gems.js';
-import { recordFind, flagTerm } from './supabase-client.js';
+import { recordFind, recordTimeSpent, flagTerm } from './supabase-client.js';
 
 function sameCells(a, b) {
   if (a.length !== b.length) return false;
@@ -47,6 +47,7 @@ export function renderWordSearch(container, { questionsData, level, playerName, 
 
   const { gridSize, grid, placements } = puzzle;
   const solved = new Map(); // word -> 'self' | 'shown'
+  const startedAt = Date.now();
 
   container.innerHTML = `
     <div class="panel">
@@ -166,6 +167,7 @@ export function renderWordSearch(container, { questionsData, level, playerName, 
     const marksEarned = placements
       .filter((p) => solved.get(p.word) === 'self')
       .reduce((sum, p) => sum + marksForFind(p.difficulty, 'wordsearch'), 0);
+    recordTimeSpent(playerName, Math.round((Date.now() - startedAt) / 1000));
     const banner = container.querySelector('#completion-banner');
     banner.innerHTML = `
       <strong>Puzzle complete! +${marksEarned} marks.</strong>
