@@ -200,6 +200,25 @@ for tokens/marks) rather than treating them as fixed.
   card selected for another attempt. A round completes once every drawn
   card has been correctly placed.
 
+## Visual design notes
+
+- **Theme**: a lighter dark theme (`--bg`/`--panel`/`--panel-2` in
+  `css/styles.css`), not the original near-black. The relative contrast
+  order (background darkest, panels lighter, nested elements lighter
+  still) is preserved - only the whole scale was raised.
+- **Sizing**: nav buttons, primary/secondary buttons, the grid cells,
+  hint-list rows, and the scoreboard table all got a deliberate bump in
+  font size and padding, for readability at a glance rather than a dense,
+  small-print feel.
+- **No page-level horizontal scrollbar, ever**: `html, body { overflow-x:
+  hidden; }` is a hard guarantee, but the real fix is that anything that
+  can legitimately outgrow the viewport - the word-search grid (up to 14
+  columns of 40px cells) and the scoreboard table (10 columns) - has its
+  own `overflow-x: auto` wrapper (`.grid-scroll`, `.table-scroll`) so *that
+  element* scrolls locally instead of the whole page shifting sideways.
+  Confirmed at a 360px viewport width: the grid gets a local scroll
+  region, the page itself never does.
+
 ## Known gap from this environment
 
 This app was built and tested in a sandboxed dev environment whose network
