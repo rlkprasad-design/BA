@@ -161,6 +161,19 @@ for tokens/marks) rather than treating them as fixed.
   see `MODE_COLUMN` in `js/supabase-client.js`. The scoreboard table shows
   one column per mode so a teacher can see, per student, how much of their
   total came from each exercise type, not just the grand total.
+- **Time spent**: `ba_scores.total_seconds` accumulates the wall-clock time
+  between a puzzle/set/round starting and its completion, added once per
+  completion via `recordTimeSpent(playerName, secondsDelta)` (called from
+  each `*-ui.js`'s `checkCompletion`, alongside - not instead of -
+  `recordFind`). This is approximate by nature: it's measuring elapsed
+  wall-clock time, not focused attention, so a backgrounded or idle tab
+  between starting and finishing counts too. `MAX_SECONDS_PER_COMPLETION`
+  (1 hour) caps what a single completion can add, so a tab left open
+  overnight doesn't inflate the total unboundedly. The scoreboard formats
+  it as `Xh Ym` / `Xm Ys` / `Xs` via `formatDuration` in `js/scoreboard.js`.
+  Like the per-mode breakdown, this only accumulates from the moment the
+  feature shipped forward - there's no way to reconstruct time spent on
+  puzzles completed before this column existed.
 
 ### True/False mode
 

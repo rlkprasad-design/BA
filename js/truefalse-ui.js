@@ -1,6 +1,6 @@
 import { drawTrueFalseSet, incrementPuzzlesCompleted } from './puzzle-engine.js';
 import { TIER_TOKENS, marksForFind } from './gems.js';
-import { recordFind } from './supabase-client.js';
+import { recordFind, recordTimeSpent } from './supabase-client.js';
 
 export function renderTrueFalse(container, { questionsData, playerName, onExhausted, onMarksEarned }) {
   const claims = drawTrueFalseSet(playerName, questionsData, 10);
@@ -19,6 +19,7 @@ export function renderTrueFalse(container, { questionsData, playerName, onExhaus
   container.innerHTML = `<div id="truefalse-cards"></div><div class="panel"><span id="completion-banner"></span></div>`;
   const cardsEl = container.querySelector('#truefalse-cards');
   const answered = new Map();
+  const startedAt = Date.now();
 
   claims.forEach((claim, index) => {
     const token = TIER_TOKENS[claim.difficulty];
@@ -79,6 +80,7 @@ export function renderTrueFalse(container, { questionsData, playerName, onExhaus
       (sum, claim, i) => sum + (answered.get(i) === 'self' ? marksForFind(claim.difficulty, 'truefalse') : 0),
       0
     );
+    recordTimeSpent(playerName, Math.round((Date.now() - startedAt) / 1000));
     const banner = container.querySelector('#completion-banner');
     banner.innerHTML = `
       <strong>Set complete! +${marksEarned} marks.</strong>

@@ -1,6 +1,6 @@
 import { drawSpellingSet, incrementPuzzlesCompleted } from './puzzle-engine.js';
 import { TIER_TOKENS, celebrateFind, marksForFind } from './gems.js';
-import { recordFind, flagTerm } from './supabase-client.js';
+import { recordFind, recordTimeSpent, flagTerm } from './supabase-client.js';
 
 // Multi-word terms (e.g. "COVERAGE ERROR") keep their space fixed in place
 // rather than shuffling it into a random spot - it reads as a structural
@@ -46,6 +46,7 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
   container.innerHTML = `<div id="spelling-cards"></div><div class="panel"><span id="completion-banner"></span></div>`;
   const cardsEl = container.querySelector('#spelling-cards');
   const solved = new Map();
+  const startedAt = Date.now();
 
   words.forEach((entry, index) => {
     const token = TIER_TOKENS[entry.difficulty];
@@ -141,6 +142,7 @@ export function renderSpelling(container, { questionsData, playerName, onExhaust
       (sum, entry, i) => sum + (solved.get(i) === 'self' ? marksForFind(entry.difficulty, 'spelling') : 0),
       0
     );
+    recordTimeSpent(playerName, Math.round((Date.now() - startedAt) / 1000));
     const banner = container.querySelector('#completion-banner');
     banner.innerHTML = `
       <strong>Set complete! +${marksEarned} marks.</strong>
