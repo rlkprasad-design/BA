@@ -59,10 +59,16 @@ app - see the comment at the top of `js/supabase-client.js`.
     picks one at random every time that word is drawn - so the same word
     can present a completely different tricky question on each of its
     exposures, without needing fake duplicate word+difficulty entries.
-    `NOMINAL`/`ORDINAL`/`INTERVAL`/`RATIO` use this with 13 scenarios each
-    (52 total), since those four words are the only possible answers for
-    "which measurement scale is this?" but the confusing examples worth
-    asking about are practically endless.
+    `NOMINAL`/`ORDINAL`/`INTERVAL`/`RATIO` use this with 13 scenarios each,
+    since those four words are the only possible answers for "which
+    measurement scale is this?" but the confusing examples worth asking
+    about are practically endless. The same pattern now covers the
+    descriptive/predictive/prescriptive analytics triad, the four Vs of big
+    data, and the supervised/unsupervised/reinforcement ML triad (8-9
+    scenarios each) - situational examples spanning UPI payments, IRCTC/
+    Tatkal bookings, cricket, streaming platforms, ride-hailing, hospitals,
+    e-commerce, and more, so a small fixed set of possible answers still
+    feels close to inexhaustible across many replays.
   - **Multi-word terms** (e.g. `COVERAGE ERROR`, `SURVIVOR BIAS`) keep a
     real space rather than being mashed into one unbroken blob like
     `COVERAGEERROR` - typing the natural two-word phrase in Spelling mode
@@ -72,7 +78,7 @@ app - see the comment at the top of `js/supabase-client.js`.
     letters keep the space fixed at its original position rather than
     scrambling it into a random spot, and a typed attempt matches whether
     or not the player includes the space themselves.
-- The 40-entry term bank is grounded in the course's own slides: **Unit I -
+- The 52-entry term bank is grounded in the course's own slides: **Unit I -
   Introduction to Business Analytics** (the science of data-driven
   decisions, the descriptive/predictive/prescriptive spectrum, the four Vs
   of big data, machine learning families, web & social analytics) and
@@ -81,7 +87,10 @@ app - see the comment at the top of `js/supabase-client.js`.
   types, and common collection challenges). Meanings and scenarios reuse
   the units' own examples where they fit naturally - Abraham Wald's
   survivorship-bias story, the Netflix/Uber data-as-asset narratives, and
-  the "sales are down, why?" research-type walkthrough.
+  the "sales are down, why?" research-type walkthrough - plus everyday
+  application scenarios (UPI, ride-hailing, cricket, streaming, hospitals,
+  e-commerce, elections) to keep the recall practical, not just textbook
+  definitions.
 - `data/levels.json` - grid size range and filler mode. Currently one level;
   the concept exists for future expansion.
 - `scripts/validate-content.js` - run with `node scripts/validate-content.js`
@@ -187,6 +196,15 @@ for tokens/marks) rather than treating them as fixed.
 - Marks are only awarded for a genuine correct guess. "Show answer" reveals
   the truth and locks the card, but earns nothing, matching the same
   convention as word search/spelling.
+- **Framing**: every scenario is authored as "[situation]. [What/Which ...
+  is this?]" for word search/spelling, where the player supplies the
+  missing term - but that trailing question left True/False with a
+  dangling question next to a bare term, nothing a player could actually
+  call true or false. `situationOnly()` in `js/truefalse-ui.js` strips
+  that final question sentence (handling embedded periods like "Mr." and
+  internal rhetorical questions correctly - it only removes the genuinely
+  last sentence, not the first "?" it finds), and the card instead states
+  an explicit "Claim: this is an example of X" for the player to judge.
 
 ### Card Grouping mode
 

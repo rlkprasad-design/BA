@@ -2,6 +2,24 @@ import { drawTrueFalseSet, incrementPuzzlesCompleted } from './puzzle-engine.js'
 import { TIER_TOKENS, marksForFind } from './gems.js';
 import { recordFind, recordTimeSpent } from './supabase-client.js';
 
+// Every scenario is authored as "[situation]. [What/Which ... is this?]" -
+// that trailing question is exactly what Word Search/Spelling need (the
+// player supplies the missing term), but it leaves True/False with nothing
+// but a dangling question next to a term, no actual claim to judge as true
+// or false. Stripping that last question sentence and pairing the
+// situation with an explicit "Claim: this is an example of X" statement
+// gives the player something grammatically real to evaluate.
+function situationOnly(text) {
+  const sentences = text.match(/[^.!?]+[.!?]+['"’”]?/g);
+  if (!sentences || sentences.length < 2) return text;
+  const last = sentences[sentences.length - 1].trim();
+  if (!last.endsWith('?')) return text; // last sentence isn't a question - nothing to strip
+  // Join with '' (not ' ') - each matched sentence already carries its own
+  // leading space from the original text, so adding another would double
+  // it up (e.g. "Mr." + " Singh's..." -> "Mr.  Singh's" with two spaces).
+  return sentences.slice(0, -1).join('').trim();
+}
+
 export function renderTrueFalse(container, { questionsData, playerName, onExhausted, onMarksEarned }) {
   const claims = drawTrueFalseSet(playerName, questionsData, 10);
 
@@ -26,8 +44,8 @@ export function renderTrueFalse(container, { questionsData, playerName, onExhaus
     const card = document.createElement('div');
     card.className = 'panel truefalse-card';
     card.innerHTML = `
-      <p class="truefalse-term">Term: <strong>${claim.word}</strong></p>
-      <p>${claim.claimText}</p>
+      <p>${situationOnly(claim.claimText)}</p>
+      <p class="truefalse-claim">Claim: this is an example of <strong>${claim.word}</strong>.</p>
       <div class="controls">
         <span class="hint-token">${token.icon}</span>
         <button class="primary" data-answer="true" data-idx="${index}">True</button>
