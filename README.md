@@ -186,6 +186,11 @@ for tokens/marks) rather than treating them as fixed.
 
 ### True/False mode
 
+**Currently hidden from the nav** while its content gets revised - the
+`<button data-view="truefalse">` in `js/main.js` is commented out, so
+players can't reach it, but the view code, content, and scoreboard column
+are all left in place. Re-enable by uncommenting that one line.
+
 - `drawTrueFalseSet` (`js/puzzle-engine.js`) draws from the same mixed
   difficulty pool as word search/spelling. For each drawn word, it flips a
   coin: heads, the claim shown is that word's own meaning/scenario (true);
