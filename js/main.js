@@ -71,7 +71,11 @@ function renderShell(playerName, questionsData, levelsData) {
           <nav class="app-nav">
             <button data-view="wordsearch" class="active">Word Search</button>
             <button data-view="spelling">Spelling</button>
+            <!-- True/False temporarily hidden while its content gets revised -
+                 view code, content, and scoreboard column are untouched, only
+                 this nav entry is commented out. Uncomment to re-enable:
             <button data-view="truefalse">True/False</button>
+            -->
             <button data-view="grouping">Grouping</button>
             <button data-view="scoreboard">Scoreboard</button>
             <button id="switch-player-btn">Switch player</button>
