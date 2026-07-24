@@ -1,6 +1,7 @@
 import { drawTrueFalseSet, incrementPuzzlesCompleted } from './puzzle-engine.js';
 import { TIER_TOKENS, marksForFind } from './gems.js';
 import { recordFind, recordTimeSpent } from './supabase-client.js';
+import { randomAffirmation } from './affirmations.js';
 
 // Every scenario is authored as "[situation]. [What/Which ... is this?]" -
 // that trailing question is exactly what Word Search/Spelling need (the
@@ -102,6 +103,7 @@ export function renderTrueFalse(container, { questionsData, playerName, onExhaus
     const banner = container.querySelector('#completion-banner');
     banner.innerHTML = `
       <strong>Set complete! +${marksEarned} marks.</strong>
+      <p class="affirmation">${randomAffirmation()}</p>
       <button class="primary" id="next-set-btn">Next set</button>`;
     banner.querySelector('#next-set-btn').addEventListener('click', () => {
       renderTrueFalse(container, { questionsData, playerName, onExhausted, onMarksEarned });
