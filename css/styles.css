@@ -91,6 +91,12 @@ nav.app-nav button.active, nav.app-nav a.active {
   margin-bottom: 16px;
 }
 
+.affirmation {
+  font-style: italic;
+  color: var(--accent);
+  margin: 8px 0;
+}
+
 /* ---------- Name gate ---------- */
 .name-gate {
   max-width: 420px;

@@ -1,6 +1,7 @@
 import { drawGroupingRound, incrementPuzzlesCompleted } from './puzzle-engine.js';
 import { celebrateFind, marksForFind } from './gems.js';
 import { recordFind, recordTimeSpent } from './supabase-client.js';
+import { randomAffirmation } from './affirmations.js';
 
 export function renderGrouping(container, { questionsData, playerName, onExhausted, onMarksEarned }) {
   const categories = drawGroupingRound(playerName, questionsData, { categoryCount: 3, cardsPerCategory: 3 });
@@ -105,6 +106,7 @@ export function renderGrouping(container, { questionsData, playerName, onExhaust
     const banner = container.querySelector('#completion-banner');
     banner.innerHTML = `
       <strong>Round complete! +${marksEarned} marks.</strong>
+      <p class="affirmation">${randomAffirmation()}</p>
       <button class="primary" id="next-round-btn">Next round</button>`;
     banner.querySelector('#next-round-btn').addEventListener('click', () => {
       renderGrouping(container, { questionsData, playerName, onExhausted, onMarksEarned });
