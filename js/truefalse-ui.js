@@ -25,7 +25,6 @@ export function renderTrueFalse(container, { questionsData, playerName, onExhaus
     const card = document.createElement('div');
     card.className = 'panel truefalse-card';
     card.innerHTML = `
-      <p class="truefalse-term">Term: <strong>${claim.word}</strong></p>
       <p>${claim.claimText}</p>
       <div class="controls">
         <span class="hint-token">${token.icon}</span>
@@ -48,14 +47,14 @@ export function renderTrueFalse(container, { questionsData, playerName, onExhaus
       lockButtons();
       if (correct) {
         answered.set(index, 'self');
-        feedback.textContent = `Correct! This claim is actually ${claim.isTrue ? 'true' : 'false'}.`;
+        feedback.textContent = `Correct! This statement is actually ${claim.isTrue ? 'true' : 'false'}.`;
         const marks = marksForFind(claim.difficulty, 'truefalse');
         onMarksEarned(marks); // immediate, local, independent of Supabase
         checkCompletion(); // don't gate user-facing completion on a network round-trip
         recordFind(playerName, claim.difficulty, marks, 'truefalse');
       } else {
         answered.set(index, 'wrong');
-        feedback.textContent = `Not quite - this claim is actually ${claim.isTrue ? 'true' : 'false'}.`;
+        feedback.textContent = `Not quite - this statement is actually ${claim.isTrue ? 'true' : 'false'}.`;
         checkCompletion();
       }
     }
@@ -67,7 +66,7 @@ export function renderTrueFalse(container, { questionsData, playerName, onExhaus
       if (answered.has(index)) return;
       answered.set(index, 'shown');
       lockButtons();
-      card.querySelector(`[data-feedback="${index}"]`).textContent = `Shown - this claim is actually ${claim.isTrue ? 'true' : 'false'}. No marks earned.`;
+      card.querySelector(`[data-feedback="${index}"]`).textContent = `Shown - this statement is actually ${claim.isTrue ? 'true' : 'false'}. No marks earned.`;
       checkCompletion();
     });
   });

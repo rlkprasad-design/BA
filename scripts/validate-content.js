@@ -99,6 +99,25 @@ function main() {
         `${label}: scenario is ${entry.scenario.length} chars, above the soft limit of ${SCENARIO_SOFT_LIMIT}`
       );
     }
+
+    // A scenario/scenarios lead-in must be a plain situational description,
+    // not a question - js/puzzle-engine.js's drawTrueFalseSet glues it
+    // directly onto "This describes <label>." to form the actual True/False
+    // claim, so a trailing question mark here would mean the resulting
+    // sentence reads as "<situation>? This describes <label>."
+    const leadinTexts = entry.scenario ? [entry.scenario] : (Array.isArray(entry.scenarios) ? entry.scenarios : []);
+    leadinTexts.forEach((text, i) => {
+      if (typeof text === 'string' && text.trim().endsWith('?')) {
+        const suffix = entry.scenario ? '' : `[${i}]`;
+        errors.push(`${label}: scenario${suffix} ends with "?" - True/False needs a plain situational lead-in, since it's appended to "This describes <label>." to form the claim`);
+      }
+    });
+
+    if (entry.label != null && (typeof entry.label !== 'string' || !entry.label.trim())) {
+      errors.push(`${label}: "label" must be a non-empty string when present`);
+    } else if (!entry.label || !entry.label.trim()) {
+      errors.push(`${label}: "label" is missing - True/False needs it to build "<lead-in> This describes <label>." for every entry it can draw`);
+    }
   }
 
   // Starved-tier check: for each level's smallest rollable grid size (the

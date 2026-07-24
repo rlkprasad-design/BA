@@ -317,27 +317,35 @@ export function isPoolExhausted(playerName, questionsData) {
   return questionsData.entries.every((e) => (exposureCounts[e.word] || 0) >= EXPOSURE_CAP);
 }
 
+function buildClaim(leadin, label) {
+  return `${leadin} This describes ${label}.`;
+}
+
 // True/False mode reuses the same draw/exposure/queue machinery as
 // Word Search and Spelling (drawn words count as "asked" for rotation
 // purposes the same way). For each drawn word, a claim is built pairing
-// it with either its OWN meaning/scenario (true) or a DIFFERENT entry's
-// (false) - the impostor entry is picked directly from the full pool and
-// does NOT itself count as exposed, since it isn't really being asked
-// about, just borrowed for its text. Returns null only when the shared
-// pool is genuinely exhausted.
+// its OWN situational lead-in (scenario/meaning) with either its OWN
+// `label` (true) or a DIFFERENT entry's label (false) - the impostor
+// entry only lends its label, not its lead-in, and does NOT itself count
+// as exposed, since it isn't really being asked about. The lead-in never
+// names its own answer, so swapping in a different label always produces
+// a complete, grammatical sentence - see README.md's "Editing content"
+// notes for how `label` is meant to read as the tail end of
+// "<lead-in> This describes <label>."
 export function drawTrueFalseSet(playerName, questionsData, count = 10) {
   const { selected } = drawMixedWordSet(playerName, questionsData.entries, count, Infinity);
   if (selected.length === 0) return null;
 
   return selected.map((entry) => {
     const isTrue = Math.random() < 0.5;
+    const leadin = entry.scenario || entry.meaning;
     if (isTrue) {
-      return { word: entry.word, difficulty: entry.difficulty, isTrue, claimText: entry.scenario || entry.meaning };
+      return { word: entry.word, difficulty: entry.difficulty, isTrue, claimText: buildClaim(leadin, entry.label) };
     }
     const sameTier = questionsData.entries.filter((e) => e.word !== entry.word && e.difficulty === entry.difficulty);
     const pool = sameTier.length > 0 ? sameTier : questionsData.entries.filter((e) => e.word !== entry.word);
-    const impostor = resolveScenario(pool[randInt(0, pool.length - 1)]);
-    return { word: entry.word, difficulty: entry.difficulty, isTrue, claimText: impostor.scenario || impostor.meaning };
+    const impostor = pool[randInt(0, pool.length - 1)];
+    return { word: entry.word, difficulty: entry.difficulty, isTrue, claimText: buildClaim(leadin, impostor.label) };
   });
 }
 

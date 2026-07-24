@@ -188,7 +188,6 @@ nav.app-nav button.active, nav.app-nav a.active {
 }
 
 /* ---------- True/False mode ---------- */
-.truefalse-term { color: var(--muted); font-size: 0.85rem; margin-bottom: 2px; }
 .truefalse-card .controls { margin-top: 10px; }
 
 /* ---------- Card Grouping mode ---------- */

@@ -43,13 +43,25 @@ app - see the comment at the top of `js/supabase-client.js`.
 
 ## Content
 
-- `data/questions.json` - the term bank: `{ word, meaning, scenario, difficulty, source }`.
+- `data/questions.json` - the term bank: `{ word, meaning, scenario, label, difficulty, source }`.
   - `difficulty` is one of `easy | medium | difficult`, mixed together in
     every puzzle.
-  - `scenario` is a short situational description grounded in the actual
-    course material (see below) - written as "given this situation, what
-    term applies" rather than a plain definition, so the recall itself is
-    application-oriented, not just rote.
+  - `scenario` is a situational lead-in grounded in the actual course
+    material (see below), **not phrased as a question** - e.g. "A retailer
+    combines sales and loyalty data just to see which products each
+    customer segment already prefers." (not "...What type of analytics is
+    this?"). True/False glues this directly onto `label` to build the
+    actual claim - see `label` below - so it must read as a plain
+    description, never naming its own answer.
+  - `label`: a natural-language name for the term (e.g. `"Predictive
+    analytics"` for `PREDICTIVE`, `"the Nominal scale"` for `NOMINAL`) -
+    required on every entry, since True/False can draw any of them.
+    `js/puzzle-engine.js`'s `drawTrueFalseSet` builds each round's claim as
+    `"<scenario> This describes <label>."`; a true claim uses the term's
+    own label, a false claim swaps in a different (same-tier where
+    possible) entry's label instead, so the lead-in never changes but the
+    asserted answer sometimes does. Write it so it reads naturally after
+    "This describes ".
   - `source` is a free-text category tag for the curator's own
     organization (e.g. "Unit 1: Types of Analytics") - never shown to
     players.
@@ -57,12 +69,13 @@ app - see the comment at the top of `js/supabase-client.js`.
     a single `scenario` string, when one word has many distinct confusing
     examples worth asking about rather than just one. `js/puzzle-engine.js`
     picks one at random every time that word is drawn - so the same word
-    can present a completely different tricky question on each of its
+    can present a completely different tricky lead-in on each of its
     exposures, without needing fake duplicate word+difficulty entries.
     `NOMINAL`/`ORDINAL`/`INTERVAL`/`RATIO` use this with 13 scenarios each
     (52 total), since those four words are the only possible answers for
     "which measurement scale is this?" but the confusing examples worth
-    asking about are practically endless.
+    asking about are practically endless. Same "no question" rule as
+    `scenario`.
   - **Multi-word terms** (e.g. `COVERAGE ERROR`, `SURVIVOR BIAS`) keep a
     real space rather than being mashed into one unbroken blob like
     `COVERAGEERROR` - typing the natural two-word phrase in Spelling mode
@@ -165,12 +178,15 @@ for tokens/marks) rather than treating them as fixed.
 ### True/False mode
 
 - `drawTrueFalseSet` (`js/puzzle-engine.js`) draws from the same mixed
-  difficulty pool as word search/spelling. For each drawn word, it flips a
-  coin: heads, the claim shown is that word's own meaning/scenario (true);
-  tails, the claim is borrowed from a different entry - preferring one of
-  the same difficulty tier so an impostor claim doesn't stand out just by
-  looking harder or easier. The borrowed entry isn't itself counted as
-  exposed, since it isn't really being asked about.
+  difficulty pool as word search/spelling. For each drawn word, its own
+  scenario/meaning is used as the lead-in, and a coin flip decides the
+  label glued onto it: heads, the word's own `label` (true); tails, a
+  different entry's label - preferring one of the same difficulty tier so
+  an impostor label doesn't stand out just by looking harder or easier.
+  The lead-in itself never changes and never names its own answer, so
+  either pairing reads as a complete, grammatical sentence. The borrowed
+  entry isn't itself counted as exposed, since it isn't really being asked
+  about - only its label is borrowed.
 - Marks are only awarded for a genuine correct guess. "Show answer" reveals
   the truth and locks the card, but earns nothing, matching the same
   convention as word search/spelling.
